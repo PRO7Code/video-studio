@@ -368,16 +368,24 @@ const Outro: React.FC<{ p: StepDecodeProps; t: number; ev: StepEvents }> = ({ p,
   );
 };
 
-/** SFX on the 30-fps timebase → real frames */
-const ScaledSfx: React.FC<{ cues: Cue[] }> = ({ cues }) => {
+/** SFX on the 30-fps timebase → real frames; ducked ≈ −6 dB while a voice line plays (speech stays on top) */
+const ScaledSfx: React.FC<{ cues: Cue[]; speech: { from: number; to: number }[] }> = ({ cues, speech }) => {
   const { fps } = useVideoConfig();
+  const duck = (tBase: number) => {
+    let g = 1;
+    for (const w of speech) g = Math.min(g, 1 - 0.5 * Math.min(ease(tBase, w.from - 4, w.from + 2), 1 - ease(tBase, w.to, w.to + 8)));
+    return g;
+  };
   return (
     <>
-      {cues.map((c, i) => (
-        <Sequence key={i} from={Math.round((c.at * fps) / BASE_FPS)} durationInFrames={Math.round(2.5 * fps)} layout="none" name={`sfx:${c.file}`}>
-          <Html5Audio src={staticFile(`sfx/${c.file}.wav`)} volume={c.volume} />
-        </Sequence>
-      ))}
+      {cues.map((c, i) => {
+        const from = Math.round((c.at * fps) / BASE_FPS);
+        return (
+          <Sequence key={i} from={from} durationInFrames={Math.round(2.5 * fps)} layout="none" name={`sfx:${c.file}`}>
+            <Html5Audio src={staticFile(`sfx/${c.file}.wav`)} volume={(f) => c.volume * duck(((from + f) * BASE_FPS) / fps)} />
+          </Sequence>
+        );
+      })}
     </>
   );
 };
@@ -432,7 +440,12 @@ const Inner: React.FC<StepDecodeProps> = (p) => {
             ...(p.voiceover?.src ? [{ from: 0, to: total, level: 0.35 }] : []),
           ] })((f * BASE_FPS) / fps)} />
       ) : null}
-      {p.sfx === false ? null : <ScaledSfx cues={stepCues(ev, outro.from, formulaChips(p.rule.pattern).map((c, i) => (c === "+" || c === "→" ? -1 : i)).filter((i) => i >= 0), p.sfxVolume ?? 1)} />}
+      {p.sfx === false ? null : (
+        <ScaledSfx
+          cues={stepCues(ev, outro.from, formulaChips(p.rule.pattern).map((c, i) => (c === "+" || c === "→" ? -1 : i)).filter((i) => i >= 0), p.sfxVolume ?? 1)}
+          speech={(p.voiceover?.segments ?? []).map((sg) => { const a = segmentStart(ph, sg, p.perOption); return { from: a, to: a + sg.frames }; })}
+        />
+      )}
     </AbsoluteFill>
   );
 };

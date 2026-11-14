@@ -16,7 +16,7 @@ NOTE: the default Piper voice (ar_JO-kareem) has an unverified dataset licence â
 import argparse, json, math, os, subprocess, sys
 
 DEFAULTS = {"hook": 54, "question": 84, "options": 66, "think": 90, "reveal": 60, "rule": 270, "outro": 96}  # = stepDecodeTiming.ts (v3)
-LEAD, TAIL = 6, {"hook": 18, "question": 24, "options": 12, "think": 12, "reveal": 24, "rule": 36, "outro": 30}
+LEAD, TAIL = 6, {"hook": 18, "question": 24, "options": 12, "think": 12, "reveal": 14, "rule": 36, "outro": 30}
 FPS = 30
 
 
@@ -43,12 +43,14 @@ def english_lines(ep, en):
     out = []
     for what in en.get("read", ["stem", "answer"]):
         if what == "stem":
-            out.append({**base, "phase": "question", "offset": t.get("stemOffset", 18), "text": __import__("re").sub(r"\s*" + __import__("re").escape(blank) + r"\s*", ", blank, ", stem)})
+            out.append({**base, "phase": "question", "offset": t.get("stemOffset", 18), "stretch": "question" in en.get("stretch", ["question", "reveal"]),
+                        "text": __import__("re").sub(r"\s*" + __import__("re").escape(blank) + r"\s*", ", blank, ", stem)})
         elif what == "options":
             out.append({**base, "phase": "options", "offset": t.get("optionsOffset", 10),
                         "text": ". ".join(f"{'ABCDE'[i]}: {o['text']}" for i, o in enumerate(ep["options"])) + "."})
         elif what == "answer":
-            out.append({**base, "phase": "reveal", "offset": t.get("answerOffset", 14), "text": stem.replace(blank, answer)})
+            out.append({**base, "phase": "reveal", "offset": t.get("answerOffset", 14), "stretch": "reveal" in en.get("stretch", ["question", "reveal"]),
+                        "text": stem.replace(blank, answer)})
     return out
 
 
@@ -96,7 +98,8 @@ def main():
             seg["offset"] = int(item.get("offset", LEAD))
             if item.get("lang"):
                 seg["lang"] = item["lang"]
-            need[item["phase"]] = max(need.get(item["phase"], 0), seg["offset"] + frames + TAIL.get(item["phase"], 18))
+            if item.get("stretch", True):
+                need[item["phase"]] = max(need.get(item["phase"], 0), seg["offset"] + frames + TAIL.get(item["phase"], 18))
         segs.append(seg)
         print(f"  vo{i:02d} {item.get('lang','ar')} {item['phase']:<9} {frames/FPS:5.2f}s  {item['text'][:48]}")
     timing = dict(ep.get("timing") or {})
