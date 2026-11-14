@@ -15,3 +15,5 @@ deepfilternet: {status: optional, license: MIT/Apache-2.0, size: "~100 MB + torc
 piper-tts:     {status: optional, license: MIT, size: "~60 MB/voice", use: Arabic draft voice-over}
 real-esrgan:   {status: optional, license: BSD-3, size: "~65 MB", use: upscale (slow on CPU)}
 avoid_commercial: [XTTS-v2 (CPML), F5-TTS weights (CC-BY-NC), MusicGen weights (CC-BY-NC)]
+kokoro-tts:    {status: optional, license: "Apache-2.0 weights (model card: trained on permissive/public-domain + synthetic audio)", size: "~92 MB int8 ONNX + 0.5 MB/voice", use: "en-US / en-GB voice", where: tools/audio/en_tts.py, files: ~/tools/kokoro}
+piper-ar:      {status: draft-only, license: "engine MIT; ar_JO-kareem dataset licence UNVERIFIED", size: "~63 MB", use: "Arabic drafts only, not for publishing"}
