@@ -1,0 +1,59 @@
+{
+  "brand": "lef-step",
+  "skill": "Grammar",
+  "skillAr": "قواعد",
+  "hookAr": "درست *STEP* ولسه ^تغلط^ في هالأسئلة؟",
+  "question": {
+    "stem": "If I ___ more time, I would learn Spanish.",
+    "blank": "___",
+    "highlight": [
+      "If",
+      "would"
+    ]
+  },
+  "options": [
+    {
+      "text": "have",
+      "whyAr": "زمن حاضر — لا يتوافق مع would"
+    },
+    {
+      "text": "had"
+    },
+    {
+      "text": "will have",
+      "whyAr": "will لا تأتي بعد If هنا"
+    },
+    {
+      "text": "having",
+      "whyAr": "ليست فعلًا مصرّفًا"
+    }
+  ],
+  "correct": 1,
+  "rule": {
+    "clueAr": "وجود *would* مع ^فعل_مجرد^ مثل *learn* يكشف نمط السؤال",
+    "clueTokens": [
+      "would",
+      "learn"
+    ],
+    "titleAr": "الجملة الشرطية الثانية",
+    "pattern": "If + past simple → would + base verb",
+    "explainAr": "تصف ^موقفًا_افتراضيًا^ غير واقعي الآن، لذلك نختار الماضي البسيط: *had*"
+  },
+  "thinkSeconds": 3,
+  "ctaAr": "*STEP_DECODE* — نفك شفرة السؤال، مو نضيّع وقتك بالتأسيس.",
+  "ctaSubAr": "تابع LEF_Academy لتحليل أسئلة STEP خطوة بخطوة.",
+  "handle": null,
+  "sampleLabelAr": "سؤال تدريبي من إعداد الاستوديو — ليس سؤالًا رسميًا من اختبار STEP",
+  "teacher": null,
+  "voiceover": null,
+  "music": null,
+  "fps": 60,
+  "sfx": true,
+  "audio": {
+    "ar": {
+      "mode": "slots-only",
+      "_note": "Arabic narration to be recorded later; see out/<slug>.timeline.md voice slots"
+    },
+    "sfxKit": "step"
+  }
+}

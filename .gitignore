@@ -11,6 +11,7 @@
 *.flac
 *.wav
 !core/remotion/public/sfx/*.wav
+!core/remotion/public/sfx/step/*.wav
 !projects/anan/thursday-reel/public/sfx/*.wav
 *.psd
 *.raw

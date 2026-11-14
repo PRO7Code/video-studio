@@ -52,3 +52,13 @@ delivered video · 5 s test before full production · no unverified claims or in
 - Measured sync (SFX-only render, onset detection): 15 UI cues within 0–5 ms of their frames; whooshes start on
   their frame and peak +0.38 s (mid-move).
 - Delivery loudness: tools/audio/master.sh → -15.9 LUFS, video stream unchanged.
+
+## STEP DECODE v3 premium motion — 2026-11-14
+- Evolved the same template (no rebuild): 30-f timebase + `fps: 60`; KineticText (per-word kinetic, *emphasis* / ^marker^);
+  layered depth shadows, drifting light, spotlight during the countdown; calculated motion blur from spring velocity;
+  question built word-by-word; staggered options with overshoot; segmented countdown; shake/strike/reason eliminations;
+  reveal shockwave + sparks + check draw + blank flip; staged analysis with formula chips; CTA + brand links.
+- Pace: 27.2 s (was 28.5 s), hook 1.8 s, 1.6 s per elimination, 7 s analysis.
+- Sound: template-owned kit from the preferred identity (A warm + B reveal); tension layers on the D bed (--bed-tension).
+- Measured: 19/22 SFX within one 60-fps frame of their beat (others: frame-0 artefact, two slow-attack whooshes by design);
+  earshot launch-grade 18/20 (minor: little air after the hiss fix, wide stereo). No voice merged (Arabic slots documented).

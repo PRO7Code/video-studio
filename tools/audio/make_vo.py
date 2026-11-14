@@ -15,7 +15,7 @@ NOTE: the default Piper voice (ar_JO-kareem) has an unverified dataset licence â
 """
 import argparse, json, math, os, subprocess, sys
 
-DEFAULTS = {"hook": 60, "question": 105, "options": 75, "think": 90, "reveal": 66, "rule": 180, "outro": 105}  # = stepDecodeTiming.ts (v2)
+DEFAULTS = {"hook": 54, "question": 84, "options": 66, "think": 90, "reveal": 60, "rule": 210, "outro": 96}  # = stepDecodeTiming.ts (v3)
 LEAD, TAIL = 6, {"hook": 18, "question": 24, "options": 12, "think": 12, "reveal": 24, "rule": 36, "outro": 30}
 FPS = 30
 
@@ -68,7 +68,7 @@ def main():
     os.makedirs(a.media_dir, exist_ok=True)
     public = os.path.join("core", "remotion", "public")
     rel = os.path.relpath(a.media_dir, public)
-    segs, need, per_opt = [], {}, int(ep.get("perOption") or 54)
+    segs, need, per_opt = [], {}, int(ep.get("perOption") or 48)
     en = (ep.get("audio") or {}).get("en") or {}
     if en.get("enabled"):
         vo = vo + english_lines(ep, en)

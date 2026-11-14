@@ -283,9 +283,10 @@ def speech_gate(vo, attack=0.03, release=0.25, thresh_db=-42.0):
     return np.repeat(g, hop)[: len(mono)]
 
 
-def build(variant, ev, out_dir, vo_path=None, think="default"):
+def build(variant, ev, out_dir, vo_path=None, think="default", bed_tension=False):
     T = ev["total"]
     sfx, bed = Track(T + 3), Track(T + 3)
+    tens = bed if bed_tension else sfx  # tension layers (pulse/pad/drone) — on the bed when the template owns the event SFX
     th, el = ev["phases"]["think"], ev["phases"]["eliminate"]
     reveal, outro_logo = ev["reveal"], ev["outroLines"][1]
     A = variant in ("A", "D")        # warm vs tech for logo, question, options, think, strikes
@@ -325,8 +326,8 @@ def build(variant, ev, out_dir, vo_path=None, think="default"):
         while x < d - 0.2:
             beats.append(x); x += 0.62 - 0.4 * (x / d)
         for b in beats:
-            sfx.add(heartbeat(), th["from"] + b, 0.55); sfx.add(heartbeat(0.14, 58), th["from"] + b + 0.13, 0.35)
-        sfx.add(stereo(pad([57, 64, 69], d, 0.5, 0.05, 2600) * np.linspace(0.3, 1.2, int(d * SR)), 0.0), th["from"], 0.5, name="tension-pad")
+            tens.add(heartbeat(), th["from"] + b, 0.55); tens.add(heartbeat(0.14, 58), th["from"] + b + 0.13, 0.35)
+        tens.add(stereo(pad([57, 64, 69], d, 0.5, 0.05, 2600) * np.linspace(0.3, 1.2, int(d * SR)), 0.0), th["from"], 0.5, name="tension-pad")
     else:
         sfx.add(stereo(sub_pulse(d), 0.0), th["from"], 0.5, name="sub-pulse")
         sfx.add(stereo(tonal_riser(d, 57, 69), 0.0), th["from"], 0.18, name="riser")
@@ -344,7 +345,7 @@ def build(variant, ev, out_dir, vo_path=None, think="default"):
     if drone_to > drone_from:
         dd = drone_to - drone_from
         dr = pad([38, 45, 50], dd, 0.4, 0.06, 900 if A else 600) if A else fft_filter(sub_pulse(dd, 3, 3, 49), hi=400)
-        sfx.add(stereo(dr, 0.0), drone_from, 0.55 if A else 0.35, name="drone")
+        tens.add(stereo(dr, 0.0), drone_from, 0.55 if A else 0.35, name="drone")
 
     # 6 · reveal: the loudest moment
     if RA:
@@ -435,8 +436,9 @@ if __name__ == "__main__":
     ap.add_argument("--variant", choices=["A", "B", "C", "D"], required=True)
     ap.add_argument("--vo", default=None, help="voice stem (wav/mp4 audio) to duck under and mix in")
     ap.add_argument("--think", choices=["default", "quiz"], default="default", help="quiz = original game-show tension cue")
+    ap.add_argument("--bed-tension", action="store_true", help="put think tension + elimination drone on bed.wav (template plays the event SFX kit)")
     ap.add_argument("--events", required=True)
     ap.add_argument("--out-dir", required=True)
     a = ap.parse_args()
-    build(a.variant, json.load(open(a.events)), a.out_dir, a.vo, a.think)
+    build(a.variant, json.load(open(a.events)), a.out_dir, a.vo, a.think, a.bed_tension)
     print(f"variant {a.variant} → {a.out_dir}")
