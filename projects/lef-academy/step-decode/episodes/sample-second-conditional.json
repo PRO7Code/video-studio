@@ -1,0 +1,26 @@
+{
+  "brand": "lef-step",
+  "skill": "Grammar",
+  "skillAr": "قواعد",
+  "hookAr": "تقدر تحلّه قبل ما ينتهي العداد؟",
+  "question": { "stem": "If I ___ more time, I would learn Spanish.", "blank": "___", "highlight": ["If", "would"] },
+  "options": [
+    { "text": "have", "whyAr": "زمن حاضر — لا يتوافق مع would" },
+    { "text": "had" },
+    { "text": "will have", "whyAr": "will لا تأتي بعد If في هذا النوع" },
+    { "text": "having", "whyAr": "ليست فعلًا مصرّفًا — الجملة تحتاج فعلًا" }
+  ],
+  "correct": 1,
+  "rule": {
+    "titleAr": "الجملة الشرطية الثانية",
+    "pattern": "If + past simple → would + base verb",
+    "explainAr": "نستخدمها لموقف افتراضي غير واقعي الآن: وجود would في الجواب يعني أن فعل If يكون في الماضي البسيط."
+  },
+  "thinkSeconds": 3,
+  "ctaAr": "تابع STEP_DECODE لتحليل أسئلة STEP خطوة بخطوة",
+  "handle": null,
+  "sampleLabelAr": "سؤال تدريبي من إعداد الاستوديو للعرض — يراجعه المدرّس قبل النشر",
+  "teacher": null,
+  "voiceover": null,
+  "music": null
+}

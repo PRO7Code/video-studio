@@ -21,6 +21,7 @@ Review a brand with the media-free composition `Showcase-<id>`. Never invent a c
 ## Compositions (templates = one component + a JSON per video)
 | Composition | Template | Config |
 |---|---|---|
+| `StepDecode` | STEP question breakdown (LEF) | `projects/lef-academy/step-decode/episodes/*.json` |
 | `Ad` | generic timeline ad | timeline JSON |
 | `RimadiLookTest` / `RimadiLookCompare` | environment test / review grid | props |
 | `Showcase-<brand>` | media-free brand review | — |
@@ -32,7 +33,7 @@ studio fallback; text/surface/muted derived for contrast on light backgrounds. `
 the brand background, default "media" for text over footage.
 
 ## Checks
-`cd core/remotion && npm run check` = brand registry check + TypeScript + unit tests (audio, brands).
+`cd core/remotion && npm run check` = brand registry check + TypeScript + unit tests (audio, brands, timing).
 
 ## Rules
 - 1080×1920, 30 fps; safe zone top 250, bottom 1480, left 90, right 150.
