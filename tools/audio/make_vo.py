@@ -31,6 +31,27 @@ def duration(path):
     return float(run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path]).stdout)
 
 
+def english_lines(ep, en):
+    """English read-aloud lines from audio.en: stem (blank spoken as "blank"), options, full correct sentence"""
+    import math as _m
+    blank = ep["question"].get("blank", "___")
+    stem = ep["question"]["stem"]
+    answer = ep["options"][ep["correct"]]["text"]
+    base = {"lang": "en", "accent": en.get("accent", "en-US"), "speaker": en.get("speaker", "af_heart"),
+            "speed": en.get("speed", 0.92), "gain_db": 20 * _m.log10(max(0.05, en.get("volume", 1.0))), "phonemes": en.get("phonemes", {})}
+    t = en.get("timing", {})
+    out = []
+    for what in en.get("read", ["stem", "answer"]):
+        if what == "stem":
+            out.append({**base, "phase": "question", "offset": t.get("stemOffset", 18), "text": __import__("re").sub(r"\s*" + __import__("re").escape(blank) + r"\s*", ", blank, ", stem)})
+        elif what == "options":
+            out.append({**base, "phase": "options", "offset": t.get("optionsOffset", 10),
+                        "text": ". ".join(f"{'ABCDE'[i]}: {o['text']}" for i, o in enumerate(ep["options"])) + "."})
+        elif what == "answer":
+            out.append({**base, "phase": "reveal", "offset": t.get("answerOffset", 14), "text": stem.replace(blank, answer)})
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("episode"); ap.add_argument("--media-dir", required=True); ap.add_argument("--out", required=True)
@@ -48,13 +69,24 @@ def main():
     public = os.path.join("core", "remotion", "public")
     rel = os.path.relpath(a.media_dir, public)
     segs, need, per_opt = [], {}, int(ep.get("perOption") or 54)
+    en = (ep.get("audio") or {}).get("en") or {}
+    if en.get("enabled"):
+        vo = vo + english_lines(ep, en)
     for i, item in enumerate(vo):
         raw, wav = os.path.join(a.media_dir, f"vo{i:02d}_raw.wav"), os.path.join(a.media_dir, f"vo{i:02d}.wav")
-        run([sys.executable, "-m", "piper", "-m", a.voice, "--length-scale", str(a.speed), "--sentence-silence", "0.1", "-f", raw],
-            input=item["text"].encode("utf-8"))
-        run(["ffmpeg", "-v", "error", "-y", "-i", raw, "-af", "highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=7,apad=pad_dur=0.05",
-             "-ar", "48000", "-ac", "2", wav])
-        os.remove(raw)
+        if item.get("lang") == "en":
+            cmd = [sys.executable, "-I", os.path.join(os.path.dirname(__file__), "en_tts.py"), item["text"], wav,
+                   "--accent", item["accent"], "--voice", item["speaker"], "--speed", str(item["speed"]),
+                   "--gain-db", str(item.get("gain_db", 0))]
+            for w, ipa in (item.get("phonemes") or {}).items():
+                cmd += ["--phoneme", f"{w}={ipa}"]
+            run(cmd)
+        else:
+            run([sys.executable, "-m", "piper", "-m", a.voice, "--length-scale", str(a.speed), "--sentence-silence", "0.1", "-f", raw],
+                input=item["text"].encode("utf-8"))
+            run(["ffmpeg", "-v", "error", "-y", "-i", raw, "-af", "highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=7,apad=pad_dur=0.05",
+                 "-ar", "48000", "-ac", "2", wav])
+            os.remove(raw)
         frames = math.ceil(duration(wav) * FPS)
         seg = {"src": f"{rel}/vo{i:02d}.wav", "phase": item["phase"], "frames": frames}
         if item["phase"] == "eliminate":
@@ -62,9 +94,11 @@ def main():
             per_opt = max(per_opt, frames + seg["offset"] + 14)
         else:
             seg["offset"] = int(item.get("offset", LEAD))
+            if item.get("lang"):
+                seg["lang"] = item["lang"]
             need[item["phase"]] = max(need.get(item["phase"], 0), seg["offset"] + frames + TAIL.get(item["phase"], 18))
         segs.append(seg)
-        print(f"  vo{i:02d} {item['phase']:<9} {frames/FPS:5.2f}s  {item['text'][:40]}")
+        print(f"  vo{i:02d} {item.get('lang','ar')} {item['phase']:<9} {frames/FPS:5.2f}s  {item['text'][:48]}")
     timing = dict(ep.get("timing") or {})
     for ph, n in need.items():
         timing[ph] = max(DEFAULTS[ph], n, timing.get(ph, 0))

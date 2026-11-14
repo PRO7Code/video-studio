@@ -31,6 +31,24 @@ def voices_npz(names):
     return path
 
 
+def phonemes_for(text, lang, overrides=None, rhotic_fix=True):
+    """espeak G2P + fixes. The bundled espeak renders the en-US NURSE vowel non-rhotic (learn → lˈɜːn, bird → bˈɜːd);
+    Kokoro's US convention is ɜɹ, so en-US gets ɜː → ɜɹ. Per-word overrides replace the automatic IPA of that word."""
+    from kokoro_onnx.tokenizer import Tokenizer
+    import re
+    tk = Tokenizer()
+    ph = tk.phonemize(text, lang)
+    for word, ipa in (overrides or {}).items():
+        auto = tk.phonemize(word, lang).strip(" .")
+        if auto and auto in ph:
+            ph = ph.replace(auto, ipa)
+        else:
+            print(f"warning: could not place override for '{word}' (auto '{auto}')", file=sys.stderr)
+    if rhotic_fix and lang == "en-us":
+        ph = re.sub(r"ɜː(?!ɹ)", "ɜɹ", ph)
+    return ph
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("text"); ap.add_argument("out")
@@ -38,6 +56,10 @@ def main():
     ap.add_argument("--voice", default=None, help="default: af_heart (US) / bf_emma (GB)")
     ap.add_argument("--speed", type=float, default=0.95)
     ap.add_argument("--gain-db", type=float, default=0.0)
+    ap.add_argument("--phoneme", action="append", default=[], metavar="WORD=IPA",
+                    help="explicit pronunciation for a word (repeatable), e.g. learn=lˈɜɹn")
+    ap.add_argument("--no-rhotic-fix", action="store_true", help="disable the en-US NURSE-vowel fix (diagnostics)")
+    ap.add_argument("--print-phonemes", action="store_true")
     a = ap.parse_args()
     lang, prefix = ACCENTS[a.accent]
     voice = a.voice or ("af_heart" if a.accent == "en-US" else "bf_emma")
@@ -45,7 +67,10 @@ def main():
         print(f"warning: voice {voice} is not a native {a.accent} voice", file=sys.stderr)
     from kokoro_onnx import Kokoro
     k = Kokoro(os.path.join(HOME, "model_quantized.onnx"), voices_npz([voice]))
-    samples, sr = k.create(a.text, voice=voice, speed=a.speed, lang=lang)
+    ph = phonemes_for(a.text, lang, dict(x.split("=", 1) for x in a.phoneme), rhotic_fix=not a.no_rhotic_fix)
+    if a.print_phonemes:
+        print("phonemes:", ph)
+    samples, sr = k.create(ph, voice=voice, speed=a.speed, lang=lang, is_phonemes=True)
     import soundfile as sf
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as t:
         sf.write(t.name, samples, sr)

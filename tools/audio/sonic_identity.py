@@ -6,6 +6,8 @@ note by note (clue → rule → meaning) and the end logo plays it in full. Two 
 
   A "Warm Scholar"  felt piano + marimba + bell, breathy swells, heartbeat tension     (calm, premium, academic)
   B "Decode Tech"   synth pluck + sub pulse + digital scramble, filter-opening reveal  (modern, energetic)
+  C "Decode Warm"   B's tech character up to and including the reveal, A's warm felt piano / pad / air for the
+                    explanation and the resolve (tension → reward → calm learning)
 
 Dramaturgy (from the episode's real event times): logo → question swell → option notes rising → 3 s build
 (ticks + accelerating pulse + riser) → intentional stop-down → strikes stepping UP in pitch → drone →
@@ -208,12 +210,34 @@ def supersaw_chord(notes, d=2.2, open_time=0.14):
 
 
 # ---------------------------------------------------------------- build
-def build(variant, ev, out_dir):
+def load_stereo(path, seconds):
+    import subprocess
+    pcm = subprocess.run(["ffmpeg", "-v", "error", "-i", path, "-vn", "-ac", "2", "-ar", str(SR), "-f", "s16le", "-"], capture_output=True).stdout
+    x = np.frombuffer(pcm, np.int16).astype(np.float64).reshape(-1, 2) / 32768
+    out = np.zeros((int(seconds * SR), 2)); n = min(len(x), len(out)); out[:n] = x[:n]
+    return out
+
+
+def speech_gate(vo, attack=0.03, release=0.25, thresh_db=-42.0):
+    """0..1 presence of speech from the voice stem (envelope follower), for sidechain ducking"""
+    mono = np.abs(vo).mean(1)
+    hop = 240
+    env = np.sqrt(np.convolve(mono ** 2, np.ones(hop) / hop, "same"))[::hop]
+    on = (20 * np.log10(env + 1e-9) > thresh_db).astype(float)
+    g = np.zeros_like(on); a_c = np.exp(-hop / SR / attack); r_c = np.exp(-hop / SR / release)
+    for i in range(1, len(on)):
+        c = a_c if on[i] > g[i - 1] else r_c
+        g[i] = c * g[i - 1] + (1 - c) * on[i]
+    return np.repeat(g, hop)[: len(mono)]
+
+
+def build(variant, ev, out_dir, vo_path=None):
     T = ev["total"]
     sfx, bed = Track(T + 3), Track(T + 3)
     th, el = ev["phases"]["think"], ev["phases"]["eliminate"]
     reveal, outro_logo = ev["reveal"], ev["outroLines"][1]
-    A = variant == "A"
+    A = variant == "A"          # tech-vs-warm for logo, question, options, think, strikes, reveal
+    W = variant in ("A", "C")   # warm explanation, post-reveal bed, resolve
     inst = felt_piano if A else pluck
 
     # 1 · opening logo (motif, fast) — sounds within 0.05 s
@@ -283,14 +307,14 @@ def build(variant, ev, out_dir):
 
     # 7 · analysis steps spell the motif (clue → rule → meaning)
     for i, at in enumerate(ev["ruleSteps"]):
-        sfx.add(reverb(tail(stereo(inst(MOTIF[i], 1.2, 0.6), (-0.25, 0.25, 0.0)[i]), 0.8), 1.4, 0.22), at, 0.42, name=f"analysis-{i}")
+        sfx.add(reverb(tail(stereo((felt_piano if W else pluck)(MOTIF[i], 1.2, 0.6), (-0.25, 0.25, 0.0)[i]), 0.8), 1.4, 0.24 if W else 0.22), at, 0.42, name=f"analysis-{i}")
 
     # 8 · end logo: full motif + resolve
-    sfx.add(stereo(breath_swell(0.4, 400, 4000) if A else tonal_riser(0.4, 62, 74, 5000), 0.0), ev["outroFrom"] - 0.4, 0.16, name="outro-swell")
+    sfx.add(stereo(breath_swell(0.4, 400, 4000) if W else tonal_riser(0.4, 62, 74, 5000), 0.0), ev["outroFrom"] - 0.4, 0.16, name="outro-swell")
     end = np.zeros(int(2.4 * SR))
     for i, m in enumerate(MOTIF):
         n = inst(m, 2.0, 0.8); s = int(i * 0.16 * SR); end[s:s + len(n)] += n[: len(end) - s]
-    res = sum((felt_piano if A else pluck)(m, 2.2, 0.6) for m in [50, 62, 69])
+    res = sum((felt_piano if W else pluck)(m, 2.2, 0.6) for m in [50, 62, 69])
     s = int(0.64 * SR); end[s:s + len(res)] += res[: len(end) - s] * 0.8
     sfx.add(reverb(tail(stereo(end, 0.0), 1.0), 1.8, 0.26), outro_logo, 0.3, name="end-logo")
     if not A:
@@ -300,11 +324,11 @@ def build(variant, ev, out_dir):
     prog = [[62, 66, 69], [59, 62, 66], [55, 59, 62], [57, 61, 64]]  # D Bm G A
     bar = 60 / 84 * 4
     t0, t_stop = 1.0, th["from"]
-    def bed_chords(start, stop, level, bright, octave=0):
+    def bed_chords(start, stop, level, bright, octave=0, warm=A):
         k, t = 0, start
         while t < stop - 0.2:
             ch = [m + octave for m in prog[k % 4]]; dur = min(bar, stop - t)
-            if A:
+            if warm:
                 for j, m in enumerate(ch + [ch[0] + 12]):  # broken felt-piano chord
                     bed.add(stereo(felt_piano(m, 1.8, 0.45), -0.3 + 0.2 * j), t + j * bar / 8, level * 0.5)
                 bed.add(pad_st([m - 12 for m in ch], dur + 0.3, 0.4, 0.4, bright), t, level)
@@ -314,16 +338,25 @@ def build(variant, ev, out_dir):
                 bed.add(pad_st(ch, dur + 0.3, 0.3, 0.4, bright), t, level * 0.9)
             k += 1; t += bar
     bed_chords(t0, t_stop - 0.1, 0.55, 1600)                       # question / options: present but calm
-    bed_chords(reveal + 0.25, outro_logo + 0.3, 0.62, 2600, 12 if A else 0)  # after the reveal: brighter, runs into the logo
+    bed_chords(reveal + 0.25, outro_logo + 0.3, 0.5 if variant == "C" else 0.62, 2600, 12 if W else 0, warm=W)  # after the reveal; C = calm, warm
     bed.add(pad_st([50, 57, 62, 66], 2.4, 0.3, 1.4, 2200), outro_logo + 0.4, 0.45)  # resolve under the logo
     if A:
         bed.add(air(th["from"] - t0), t0, 0.012)
+    if W:
         bed.add(air(ev["total"] - reveal - 0.3), reveal + 0.3, 0.016)
 
     # ------------------------------------------------ mix + write
     L = int((T + 0.05) * SR)
     s_st, b_st = sfx.buf[:L], bed.buf[:L]
-    mix = s_st + 0.85 * b_st
+    if vo_path:
+        vo = load_stereo(vo_path, L / SR)
+        g = speech_gate(vo)[:, None]
+        s_st = s_st * (1 - 0.37 * g)        # ≈ −4 dB
+        b_st = b_st * (1 - 0.65 * g)        # ≈ −9 dB
+        mix = s_st + 0.85 * b_st + vo
+        write(os.path.join(out_dir, "vo.wav"), vo)
+    else:
+        mix = s_st + 0.85 * b_st
     fade = np.minimum(1, (T - np.arange(L) / SR) / 0.6).clip(0, 1)[:, None]
     mix *= fade
     for name, x, norm in [("sfx", s_st, False), ("bed", b_st, False), ("mix", mix, True)]:
@@ -346,9 +379,10 @@ def write(path, st):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--variant", choices=["A", "B"], required=True)
+    ap.add_argument("--variant", choices=["A", "B", "C"], required=True)
+    ap.add_argument("--vo", default=None, help="voice stem (wav/mp4 audio) to duck under and mix in")
     ap.add_argument("--events", required=True)
     ap.add_argument("--out-dir", required=True)
     a = ap.parse_args()
-    build(a.variant, json.load(open(a.events)), a.out_dir)
+    build(a.variant, json.load(open(a.events)), a.out_dir, a.vo)
     print(f"variant {a.variant} → {a.out_dir}")

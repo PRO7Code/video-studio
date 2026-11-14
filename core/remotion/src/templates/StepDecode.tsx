@@ -43,6 +43,7 @@ export type StepDecodeProps = {
   music?: { src: string; volume?: number } | null;
   timing?: Partial<Record<PhaseName, number>>;
   perOption?: number; // frames per eliminated option
+  sfx?: boolean; // built-in UI sounds (default true); false when an external sonic identity is mixed in
 };
 
 const LETTERS = ["A", "B", "C", "D", "E"];
@@ -335,7 +336,7 @@ const Inner: React.FC<StepDecodeProps> = (p) => {
             ...(p.voiceover?.src ? [{ from: 0, to: total, level: 0.35 }] : []),
           ] })} />
       ) : null}
-      <SfxTrack cues={stepCues(ev, P("outro").from)} />
+      {p.sfx === false ? null : <SfxTrack cues={stepCues(ev, P("outro").from)} />}
     </AbsoluteFill>
   );
 };
