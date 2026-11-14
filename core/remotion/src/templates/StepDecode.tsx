@@ -37,6 +37,7 @@ export type StepDecodeProps = {
   ctaAr: string; // line 1
   ctaSubAr?: string | null; // line 2
   handle?: string | null; // only real, approved handles
+  links?: Record<string, string> | null; // overrides the brand's links (brands/<id>/brand.json → links); {} hides them
   sampleLabelAr?: string | null; // e.g. "سؤال تدريبي — ليس من اختبار STEP الرسمي"
   teacher?: { src: string; from?: number; volume?: number } | null;
   voiceover?: { src?: string; ducks?: { from: number; to: number }[]; segments?: VoSegment[]; volume?: number } | null;
@@ -273,7 +274,29 @@ const Outro: React.FC<{ p: StepDecodeProps; ev: StepEvents }> = ({ p, ev }) => {
         </div>
       ) : null}
       {p.handle ? <div style={{ marginTop: 26, fontFamily: latin, fontWeight: 700, fontSize: 44, backgroundImage: brandGradient(b), WebkitBackgroundClip: "text", color: "transparent" }}>{p.handle}</div> : null}
+      <Links links={p.links ?? b.links} at={ev.outroLines[1] + 10} />
     </AbsoluteFill>
+  );
+};
+
+const LINK_LABEL: Record<string, string> = { web: "Web", tiktok: "TikTok", instagram: "Instagram", snapchat: "Snapchat", x: "X", youtube: "YouTube" };
+/** brand / episode links (website, TikTok …) as two calm pills under the CTA */
+const Links: React.FC<{ links: Record<string, string>; at: number }> = ({ links, at }) => {
+  const b = useBrand();
+  const f = useCurrentFrame();
+  const items = Object.entries(links ?? {});
+  const a = interpolate(f, [at, at + 12], [0, 1], { ...clamp, easing: ease });
+  if (!items.length) return null;
+  return (
+    <div style={{ marginTop: 34, display: "flex", gap: 18, justifyContent: "center", flexWrap: "wrap", direction: "ltr", opacity: a, transform: `translateY(${(1 - a) * 16}px)` }}>
+      {items.map(([k, v]) => (
+        <div key={k} style={{ display: "flex", alignItems: "baseline", gap: 12, padding: "14px 26px", borderRadius: 999, background: b.colors.surface,
+          border: `2px solid ${withAlpha(b.colors.primary, 0.35)}`, fontFamily: latin }}>
+          <span style={{ fontSize: 26, fontWeight: 600, color: b.colors.secondary, letterSpacing: 1 }}>{LINK_LABEL[k] ?? k}</span>
+          <span style={{ fontSize: 40, fontWeight: 700, color: b.colors.primary }}>{v}</span>
+        </div>
+      ))}
+    </div>
   );
 };
 

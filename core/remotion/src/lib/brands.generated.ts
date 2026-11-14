@@ -27,7 +27,8 @@ export const RAW_BRANDS: Record<string, RawBrand> = {
       "latin": "Space Grotesk",
       "mono": "JetBrains Mono"
     },
-    "logo": null
+    "logo": null,
+    "links": null
   },
   "hanem-cafe": {
     "id": "hanem-cafe",
@@ -50,7 +51,8 @@ export const RAW_BRANDS: Record<string, RawBrand> = {
       "latin": "Space Grotesk",
       "mono": "JetBrains Mono"
     },
-    "logo": null
+    "logo": null,
+    "links": null
   },
   "hoyo-burger": {
     "id": "hoyo-burger",
@@ -73,7 +75,8 @@ export const RAW_BRANDS: Record<string, RawBrand> = {
       "latin": "Space Grotesk",
       "mono": "JetBrains Mono"
     },
-    "logo": null
+    "logo": null,
+    "links": null
   },
   "lef-step": {
     "id": "lef-step",
@@ -96,7 +99,11 @@ export const RAW_BRANDS: Record<string, RawBrand> = {
       "latin": "Space Grotesk",
       "mono": "JetBrains Mono"
     },
-    "logo": null
+    "logo": null,
+    "links": {
+      "web": "lef.one",
+      "tiktok": "@lef.one"
+    }
   },
   "rimadi-lounge": {
     "id": "rimadi-lounge",
@@ -119,7 +126,8 @@ export const RAW_BRANDS: Record<string, RawBrand> = {
       "latin": "Space Grotesk",
       "mono": "JetBrains Mono"
     },
-    "logo": null
+    "logo": null,
+    "links": null
   },
   "sand": {
     "id": "sand",
@@ -142,7 +150,8 @@ export const RAW_BRANDS: Record<string, RawBrand> = {
       "latin": "Space Grotesk",
       "mono": "JetBrains Mono"
     },
-    "logo": null
+    "logo": null,
+    "links": null
   },
   "studio": {
     "id": "studio",
@@ -169,7 +178,8 @@ export const RAW_BRANDS: Record<string, RawBrand> = {
       "latin": "Space Grotesk",
       "mono": "JetBrains Mono"
     },
-    "logo": null
+    "logo": null,
+    "links": null
   },
   "tech-channel": {
     "id": "tech-channel",
@@ -192,6 +202,7 @@ export const RAW_BRANDS: Record<string, RawBrand> = {
       "latin": "Space Grotesk",
       "mono": "JetBrains Mono"
     },
-    "logo": null
+    "logo": null,
+    "links": null
   }
 };

@@ -8,6 +8,7 @@ note by note (clue → rule → meaning) and the end logo plays it in full. Two 
   B "Decode Tech"   synth pluck + sub pulse + digital scramble, filter-opening reveal  (modern, energetic)
   C "Decode Warm"   B's tech character up to and including the reveal, A's warm felt piano / pad / air for the
                     explanation and the resolve (tension → reward → calm learning)
+  D "Scholar Reveal" A everywhere (owner's preference) + ONLY B's answer-reveal sound (owner round 3)
 
 Dramaturgy (from the episode's real event times): logo → question swell → option notes rising → 3 s build
 (ticks + accelerating pulse + riser) → intentional stop-down → strikes stepping UP in pitch → drone →
@@ -209,6 +210,50 @@ def supersaw_chord(notes, d=2.2, open_time=0.14):
     return (dark * (1 - mix) + bright * mix) / (3 * len(notes)) * np.exp(-t / 1.4)
 
 
+# ---------------------------------------------------------------- quiz-show tension (original; genre conventions only)
+def string_ens(notes, d, attack=0.5, release=0.3, bright=2200, tremolo=0.0):
+    """saw-ensemble 'strings': detuned voices per side, slow attack, optional tremolo"""
+    t = tt(d)
+    def side():
+        x = np.zeros_like(t)
+        for m in notes:
+            for det in (-0.005, 0.0, 0.005):
+                f0 = midi(m) * (1 + det + rng.uniform(-0.001, 0.001))
+                for k in range(1, 14):
+                    if f0 * k > 9000: break
+                    x += np.sin(2 * np.pi * f0 * k * t + rng.uniform(0, 6.28)) / k
+        return x
+    env = np.minimum(1, t / attack) * np.minimum(1, np.maximum(0, (d - t) / release))
+    trem = 1 - tremolo * 0.5 * (1 + np.sin(2 * np.pi * 9 * t))
+    return np.stack([fft_filter(side() * env * trem, lo=70, hi=bright) for _ in range(2)], 1) / (3 * len(notes) * 4)
+
+
+def timpani(f=55, d=0.9):
+    t = tt(d)
+    body = np.sin(2 * np.pi * (f + 18 * np.exp(-t / 0.05)) * t) * np.exp(-t / 0.35)
+    skin = fft_filter(rng.standard_normal(len(t)) * np.exp(-t / 0.02), lo=80, hi=900) * 0.4
+    return (body + skin) * np.minimum(1, t / 0.002)
+
+
+def quiz_cue(sfx, bed, ev, th, q):
+    """question sting → low tension drone under question/options → steady pulse + rising cluster in the countdown"""
+    # sting when the question is asked: low timpani + minor string hit + sub
+    sfx.add(stereo(timpani(46, 1.4), 0.0), q - 0.02, 0.75, name="quiz-sting")
+    sfx.add(sub_thump(0.9, 38), q - 0.02, 0.55)
+    sfx.add(reverb(tail(string_ens([50, 53, 57, 62], 1.4, 0.02, 1.0, 3000), 1.2), 2.2, 0.3), q, 0.55)
+    # drone under question + options (minor, slightly dissonant), quiet; music bed stays out
+    d1 = th["from"] - (q + 0.6)
+    if d1 > 0.5:
+        bed.add(string_ens([38, 45, 50, 51], d1 + 0.3, 0.8, 0.3, 1200), q + 0.6, 0.9, name=None)
+    # countdown: steady 120-bpm pulse, rising tremolo cluster, ticks kept; hard stop at the end (stop-down)
+    d = th["to"] - th["from"]
+    for k in range(int(d / 0.5)):
+        sfx.add(stereo(timpani(55 if k % 2 == 0 else 52, 0.45), 0.0), th["from"] + k * 0.5, 0.34 + 0.05 * k / max(1, d / 0.5))
+    cl = string_ens([50, 51, 57, 62, 63], d, 0.6, 0.04, 3600, tremolo=0.8)
+    cl *= np.linspace(0.35, 1.25, len(cl))[:, None]
+    sfx.add(cl, th["from"], 0.7, name="quiz-tension")
+
+
 # ---------------------------------------------------------------- build
 def load_stereo(path, seconds):
     import subprocess
@@ -231,13 +276,14 @@ def speech_gate(vo, attack=0.03, release=0.25, thresh_db=-42.0):
     return np.repeat(g, hop)[: len(mono)]
 
 
-def build(variant, ev, out_dir, vo_path=None):
+def build(variant, ev, out_dir, vo_path=None, think="default"):
     T = ev["total"]
     sfx, bed = Track(T + 3), Track(T + 3)
     th, el = ev["phases"]["think"], ev["phases"]["eliminate"]
     reveal, outro_logo = ev["reveal"], ev["outroLines"][1]
-    A = variant == "A"          # tech-vs-warm for logo, question, options, think, strikes, reveal
-    W = variant in ("A", "C")   # warm explanation, post-reveal bed, resolve
+    A = variant in ("A", "D")        # warm vs tech for logo, question, options, think, strikes
+    W = variant in ("A", "C", "D")   # warm explanation, post-reveal bed, resolve
+    RA = variant == "A"              # reveal: warm chord (A) or B's filter-opening reveal (B, C, D)
     inst = felt_piano if A else pluck
 
     # 1 · opening logo (motif, fast) — sounds within 0.05 s
@@ -265,7 +311,9 @@ def build(variant, ev, out_dir, vo_path=None):
     d = th["to"] - th["from"]
     for k, at in enumerate(ev["thinkTicks"]):
         sfx.add(stereo(woodblock(93 + 2 * k) if A else ping(2000 + 220 * k), 0.15 * (-1) ** k), at, 0.5, name="tick")
-    if A:
+    if think == "quiz":
+        quiz_cue(sfx, bed, ev, th, ev["questionIn"])
+    elif A:
         beats, x = [], 0.0
         while x < d - 0.2:
             beats.append(x); x += 0.62 - 0.4 * (x / d)
@@ -292,7 +340,7 @@ def build(variant, ev, out_dir, vo_path=None):
         sfx.add(stereo(dr, 0.0), drone_from, 0.55 if A else 0.35, name="drone")
 
     # 6 · reveal: the loudest moment
-    if A:
+    if RA:
         chord = sum(felt_piano(m, 2.6, 0.9) for m in [50, 62, 66, 69, 76])
         rv = reverb(tail(stereo(chord, 0.0), 1.2), 2.0, 0.28)
         sfx.add(rv, reveal, 0.42, name="reveal")
@@ -337,7 +385,8 @@ def build(variant, ev, out_dir, vo_path=None):
                     bed.add(stereo(fft_filter(saw(ch[0] - 24, 0.18, 12, 2.2, 0.7), hi=900), 0.0), t + j * bar / 8, level * 0.7)
                 bed.add(pad_st(ch, dur + 0.3, 0.3, 0.4, bright), t, level * 0.9)
             k += 1; t += bar
-    bed_chords(t0, t_stop - 0.1, 0.55, 1600)                       # question / options: present but calm
+    if think != "quiz":
+        bed_chords(t0, t_stop - 0.1, 0.55, 1600)                   # question / options: present but calm
     bed_chords(reveal + 0.25, outro_logo + 0.3, 0.5 if variant == "C" else 0.62, 2600, 12 if W else 0, warm=W)  # after the reveal; C = calm, warm
     bed.add(pad_st([50, 57, 62, 66], 2.4, 0.3, 1.4, 2200), outro_logo + 0.4, 0.45)  # resolve under the logo
     if A:
@@ -379,10 +428,11 @@ def write(path, st):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--variant", choices=["A", "B", "C"], required=True)
+    ap.add_argument("--variant", choices=["A", "B", "C", "D"], required=True)
     ap.add_argument("--vo", default=None, help="voice stem (wav/mp4 audio) to duck under and mix in")
+    ap.add_argument("--think", choices=["default", "quiz"], default="default", help="quiz = original game-show tension cue")
     ap.add_argument("--events", required=True)
     ap.add_argument("--out-dir", required=True)
     a = ap.parse_args()
-    build(a.variant, json.load(open(a.events)), a.out_dir, a.vo)
+    build(a.variant, json.load(open(a.events)), a.out_dir, a.vo, a.think)
     print(f"variant {a.variant} → {a.out_dir}")

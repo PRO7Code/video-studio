@@ -23,5 +23,9 @@
   "tone": null,
   "do": [],
   "dont": [],
-  "_note": "Initial colours from the owner (2026-11-14), may change. No approved logo yet. text/surface/muted are derived for contrast, not brand colours."
+  "_note": "Initial colours from the owner (2026-11-14), may change. No approved logo yet. text/surface/muted are derived for contrast, not brand colours.",
+  "links": {
+    "web": "lef.one",
+    "tiktok": "@lef.one"
+  }
 }

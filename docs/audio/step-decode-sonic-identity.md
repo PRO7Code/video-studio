@@ -52,3 +52,14 @@ Realness is not scored: the identity is deliberately designed (branded), not rec
   already dips F3 to ~2.0–2.4 kHz in "learn" with or without the fix, bf_emma stays flat at ~3.0 kHz. So the audio was
   rhotic even when the IPA was not; the fix is kept for consistent input. **Human listening review is still required.**
 - Kokoro stays EXPERIMENTAL until the licence review and the owner's approval for commercial publishing.
+
+## Round 3 — owner feedback (2026-11-14)
+- Owner: A (Warm Scholar) is preferred up to the answer; only B's answer-reveal sound is better; B's option "beep"
+  pops are disliked → **D "Scholar Reveal"** = A everywhere + B's reveal only (`--variant D`).
+- Owner asked for the "Who Wants to Be a Millionaire" thinking music: NOT used — it is copyrighted (and a melodic
+  sound-alike risks takedowns / claims). Instead **`--think quiz`**: an original quiz-show tension cue (question sting with
+  timpani + minor string hit, low dissonant drone under question/options, steady 120-bpm timpani pulse and rising
+  tremolo cluster in the countdown, hard stop). Genre conventions only; no melody from any show.
+- Checks (D and D2): English intelligible (Whisper exact), true silence 17.20–17.45 s before the reveal, reveal loudest
+  section; both mastered to -15.0 LUFS.
+- LEF links added to brands/lef-step/brand.json (`links`: web lef.one, TikTok @lef.one) and shown on the CTA card.

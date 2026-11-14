@@ -6,6 +6,7 @@ export type RawBrand = {
   gradient?: string[] | null;
   fonts?: Partial<Record<"arabic" | "latin" | "mono", string>>;
   logo?: string | null;
+  links?: Record<string, string> | null; // e.g. { web: "lef.one", tiktok: "@lef.one" } — only real, owner-provided
 };
 export type BrandColors = Record<ColorKey, string> & { scrim: string; line: string };
 export type Brand = {
@@ -14,6 +15,7 @@ export type Brand = {
   colors: BrandColors; gradient: string[];
   fonts: { arabic: string; latin: string; mono: string };
   logo: string | null;
+  links: Record<string, string>;
   isLight: boolean; // background is light → graphic scenes use dark text
   warnings: string[];
 };
@@ -87,6 +89,6 @@ export const resolveBrandFrom = (all: Record<string, RawBrand>, id: string): Bra
     colors: { background, surface, primary, secondary, accent, text, onMedia, muted, scrim, line },
     gradient: grad,
     fonts: { arabic: "Readex Pro", latin: "Space Grotesk", mono: "JetBrains Mono", ...(base.fonts ?? {}), ...(raw.fonts ?? {}) },
-    logo: raw.logo ?? null, isLight, warnings,
+    logo: raw.logo ?? null, links: raw.links ?? {}, isLight, warnings,
   };
 };
