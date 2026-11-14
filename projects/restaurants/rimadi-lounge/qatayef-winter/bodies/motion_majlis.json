@@ -1,0 +1,10 @@
+{
+  "_endpoint": "kling-video/o3/image-reference",
+  "prompt": "<motion prompt from prompts.md>",
+  "first_frame_url": "<public_url of keyframes/majlis.png (real box placed)>",
+  "image_urls": ["<public_url of box_front.png>", "<public_url of box_34.jpg>"],
+  "duration": 3,
+  "aspect_ratio": "9:16",
+  "mode": "pro",
+  "sound": "off"
+}

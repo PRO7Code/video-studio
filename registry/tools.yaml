@@ -1,0 +1,17 @@
+# Studio tool registry: add a tool = add an entry (+ an adapter in tools/). scripts/doctor.sh reports status.
+# status: installed | bootstrap | optional | paid | evaluate
+remotion:      {status: bootstrap, version: 4.0.543, license: "Remotion License (free ≤3 employees; company licence above)", cost: free/licence, where: core/remotion}
+ffmpeg:        {status: installed, license: LGPL/GPL, cost: free}
+playwright:    {status: installed, license: Apache-2.0, cost: free, use: scripted screen recordings of websites}
+faster-whisper:{status: bootstrap, license: MIT, cost: free, size: "~1.5 GB model (medium)", use: transcripts}
+earshot:       {status: bootstrap, rev: 4ac3d2a, license: MIT, cost: free, size: "~2.8 GB incl. 1.1 GB models", use: listening/QA, MCP}
+real-sound:    {status: bootstrap, rev: 4ac3d2a, cost: free, note: needs real licensed recordings}
+real-sfx:      {status: bootstrap, rev: edbefcb, cost: free, note: needs a sound library; ships 936 uisfx UI sounds}
+product-lock:  {status: installed, where: tools/product_lock, cost: free}
+higgsfield-api:{status: paid, auth: "network secret api.higgsfield.ai, prefix Key", min_topup_usd: 5, where: tools/higgsfield/hf.py}
+hyperframes:   {status: evaluate, license: Apache-2.0, cost: free, note: alternative renderer if Remotion licence is an issue}
+mediapipe:     {status: optional, license: Apache-2.0, size: "~10 MB", use: teacher background removal}
+deepfilternet: {status: optional, license: MIT/Apache-2.0, size: "~100 MB + torch", use: voice denoise}
+piper-tts:     {status: optional, license: MIT, size: "~60 MB/voice", use: Arabic draft voice-over}
+real-esrgan:   {status: optional, license: BSD-3, size: "~65 MB", use: upscale (slow on CPU)}
+avoid_commercial: [XTTS-v2 (CPML), F5-TTS weights (CC-BY-NC), MusicGen weights (CC-BY-NC)]

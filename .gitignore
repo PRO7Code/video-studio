@@ -1,0 +1,44 @@
+# ── media never goes to git (private footage, voices, renders) ──
+*.mp4
+*.mov
+*.MOV
+*.m4v
+*.webm
+*.mkv
+*.m4a
+*.mp3
+*.aac
+*.flac
+*.wav
+!core/remotion/public/sfx/*.wav
+!projects/anan/thursday-reel/public/sfx/*.wav
+*.psd
+*.raw
+projects/**/media/
+projects/**/assets/
+projects/**/gen/
+projects/**/keyframes/
+projects/**/locked/
+projects/**/out/
+projects/**/public/clips/
+projects/**/public/audio/
+projects/**/ledger.jsonl
+core/remotion/public/projects/
+# ── secrets ──
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+# ── models, deps, caches ──
+*.safetensors
+*.ckpt
+*.onnx
+*.pt
+*.bin
+node_modules/
+.venv/
+__pycache__/
+.cache/
+*.log
+out/

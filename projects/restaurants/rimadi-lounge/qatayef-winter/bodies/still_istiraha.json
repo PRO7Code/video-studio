@@ -1,0 +1,8 @@
+{
+  "_endpoint": "marketing-studio/image",
+  "prompt": "<shared scene line + istiraha line from prompts.md>",
+  "image_urls": ["<public_url of box_34.jpg>", "<public_url of box_top.jpg>"],
+  "aspect_ratio": "9:16",
+  "resolution": "2k",
+  "quality": "high"
+}

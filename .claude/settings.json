@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          { "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/scripts/bootstrap.sh\" >/tmp/studio-bootstrap.log 2>&1 || echo 'studio bootstrap failed: see /tmp/studio-bootstrap.log'", "timeout": 900 }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "deny": ["Read(./.env)", "Read(./.env.*)"]
+  }
+}
