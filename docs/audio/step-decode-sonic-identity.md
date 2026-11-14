@@ -63,3 +63,10 @@ Realness is not scored: the identity is deliberately designed (branded), not rec
 - Checks (D and D2): English intelligible (Whisper exact), true silence 17.20–17.45 s before the reveal, reveal loudest
   section; both mastered to -15.0 LUFS.
 - LEF links added to brands/lef-step/brand.json (`links`: web lef.one, TikTok @lef.one) and shown on the CTA card.
+
+## Round 4 — hiss fix (owner heard hiss, esp. while the female voice speaks, middle + end)
+Measured sources: (1) the "air" noise layer (7–15 kHz) that ran under the bed after D became warm everywhere;
+(2) the noisy breath swells; (3) the int8 Kokoro voice: fizzy top end + sharp sibilants (speech 6–16 kHz ≈ −1 dB).
+Fix: air layer removed, breath swells → tonal swells, voice chain `afftdn → deesser → lowpass 11.5 kHz → soft gate`.
+7–16 kHz share (D): question −21.5 → −28.8 dB, answer −16.0 → −28.2 dB, analysis −28.4 → −38.9 dB, end −28.0 → −32.9 dB.
+English intelligibility unchanged (Whisper exact). If any fizz remains, next step is the fp16 voice model (≈163 MB).

@@ -114,6 +114,13 @@ def breath_swell(d=0.45, lo=600, hi=5000):
     return fft_filter(n, lo=lo, hi=hi) * env
 
 
+def soft_swell(d=0.45, notes=(62, 69, 74)):
+    """tonal rising swell (no noise): replaces the breathy swells the owner heard as hiss"""
+    t = tt(d); x = sum(np.sin(2 * np.pi * midi(m) * t + i) for i, m in enumerate(notes))
+    env = (t / d) ** 2.0 * np.exp(-np.maximum(0, t - d * 0.9) / 0.05)
+    return fft_filter(x * env, lo=150, hi=4000) / len(notes)
+
+
 def woodblock(m=93, d=0.12):
     f0 = midi(m); t = tt(d)
     x = np.sin(2 * np.pi * f0 * t) * np.exp(-t / 0.025) + 0.5 * np.sin(2 * np.pi * f0 * 2.1 * t) * np.exp(-t / 0.012)
@@ -298,7 +305,7 @@ def build(variant, ev, out_dir, vo_path=None, think="default"):
 
     # 2 · question enters: swell into a 2-note fragment of the motif
     q = ev["questionIn"]
-    sfx.add(stereo(breath_swell(0.42) if A else tonal_riser(0.4, 69, 81, 6000), 0.0), q - 0.42, 0.22 if A else 0.16, name="question-swell")
+    sfx.add(stereo(soft_swell(0.42) if A else tonal_riser(0.4, 69, 81, 6000), 0.0), q - 0.42, 0.2 if A else 0.16, name="question-swell")
     for i, m in enumerate(MOTIF[:2]):
         sfx.add(reverb(tail(stereo(inst(m, 1.0, 0.55), -0.2 + 0.4 * i), 0.6), 1.2, 0.2), q + 0.02 + i * 0.11, 0.45)
 
@@ -358,7 +365,7 @@ def build(variant, ev, out_dir, vo_path=None, think="default"):
         sfx.add(reverb(tail(stereo((felt_piano if W else pluck)(MOTIF[i], 1.2, 0.6), (-0.25, 0.25, 0.0)[i]), 0.8), 1.4, 0.24 if W else 0.22), at, 0.42, name=f"analysis-{i}")
 
     # 8 · end logo: full motif + resolve
-    sfx.add(stereo(breath_swell(0.4, 400, 4000) if W else tonal_riser(0.4, 62, 74, 5000), 0.0), ev["outroFrom"] - 0.4, 0.16, name="outro-swell")
+    sfx.add(stereo(soft_swell(0.4, (57, 62, 69)) if W else tonal_riser(0.4, 62, 74, 5000), 0.0), ev["outroFrom"] - 0.4, 0.16, name="outro-swell")
     end = np.zeros(int(2.4 * SR))
     for i, m in enumerate(MOTIF):
         n = inst(m, 2.0, 0.8); s = int(i * 0.16 * SR); end[s:s + len(n)] += n[: len(end) - s]
@@ -389,10 +396,7 @@ def build(variant, ev, out_dir, vo_path=None, think="default"):
         bed_chords(t0, t_stop - 0.1, 0.55, 1600)                   # question / options: present but calm
     bed_chords(reveal + 0.25, outro_logo + 0.3, 0.5 if variant == "C" else 0.62, 2600, 12 if W else 0, warm=W)  # after the reveal; C = calm, warm
     bed.add(pad_st([50, 57, 62, 66], 2.4, 0.3, 1.4, 2200), outro_logo + 0.4, 0.45)  # resolve under the logo
-    if A:
-        bed.add(air(th["from"] - t0), t0, 0.012)
-    if W:
-        bed.add(air(ev["total"] - reveal - 0.3), reveal + 0.3, 0.016)
+    # (no "air" noise layer: removed in round 4 — the owner heard it as hiss)
 
     # ------------------------------------------------ mix + write
     L = int((T + 0.05) * SR)

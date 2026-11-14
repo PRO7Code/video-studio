@@ -13,6 +13,10 @@ import numpy as np
 
 HOME = os.path.expanduser(os.environ.get("KOKORO_HOME", "~/tools/kokoro"))
 ACCENTS = {"en-US": ("en-us", "a"), "en-GB": ("en-gb", "b")}
+# voice clean-up (owner heard hiss): the int8 model adds a fizzy top end and sharp sibilants.
+# denoise → de-ess → low-pass above the speech band → soft gate between words. Measured: speech 6–16 kHz −15 dB, 1–4 kHz unchanged.
+CLEAN = ("highpass=f=70,afftdn=nr=12:nf=-50:tn=1,deesser=i=0.5:m=0.5:f=0.5,lowpass=f=11500,"
+         "agate=threshold=0.01:ratio=4:attack=4:release=140:range=0.1")
 
 
 def voices_npz(names):
@@ -76,7 +80,7 @@ def main():
         sf.write(t.name, samples, sr)
         raw = t.name
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", raw, "-af",
-                    f"highpass=f=70,loudnorm=I=-16:TP=-1.5:LRA=7,volume={a.gain_db}dB,apad=pad_dur=0.05", "-ar", "48000", "-ac", "2", a.out], check=True)
+                    f"{CLEAN},loudnorm=I=-16:TP=-1.5:LRA=7,volume={a.gain_db}dB,apad=pad_dur=0.05", "-ar", "48000", "-ac", "2", a.out], check=True)
     os.remove(raw)
     print(f"{a.accent} {voice} speed={a.speed} → {a.out}")
 
