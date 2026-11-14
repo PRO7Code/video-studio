@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame } from "remotion";
-import { BrandProvider, resolveBrand, useBrand } from "./lib/brand";
+import { BrandProvider, resolveBrand, useBrand, Surface, withAlpha } from "./lib/brand";
 import { Words, Kicker, Chip, DevBadge } from "./lib/Type";
 import { FlowDiagram } from "./lib/FlowDiagram";
 import { Chapters } from "./lib/Chapters";
@@ -11,8 +11,8 @@ const Inner: React.FC = () => {
   const b = useBrand();
   const f = useCurrentFrame();
   return (
-    <AbsoluteFill style={{ background: `radial-gradient(ellipse at 50% 30%, ${b.colors.secondary}33, ${b.colors.ink} 70%)` }}>
-      <AbsoluteFill style={{ backgroundImage: `linear-gradient(${b.colors.primary}10 1px, transparent 1px), linear-gradient(90deg, ${b.colors.primary}10 1px, transparent 1px)`, backgroundSize: "60px 60px", backgroundPosition: `0 ${f * 0.6}px` }} />
+    <AbsoluteFill style={{ backgroundColor: b.colors.background, backgroundImage: `radial-gradient(ellipse at 50% 30%, ${withAlpha(b.colors.secondary, b.isLight ? 0.12 : 0.2)}, ${b.colors.background} 70%)` }}>
+      <AbsoluteFill style={{ backgroundImage: `linear-gradient(${withAlpha(b.colors.primary, 0.07)} 1px, transparent 1px), linear-gradient(90deg, ${withAlpha(b.colors.primary, 0.07)} 1px, transparent 1px)`, backgroundSize: "60px 60px", backgroundPosition: `0 ${f * 0.6}px` }} />
       <Chapters acts={[{ label: "الفكرة", from: 0, to: 60 }, { label: "الطريقة", from: 60, to: 120 }, { label: "النتيجة", from: 120, to: 180 }]} />
       <AbsoluteFill style={{ padding: "280px 150px 0 90px" }}>
         <Kicker num="01" label={b.nameAr} delay={2} />
@@ -30,18 +30,20 @@ const Inner: React.FC = () => {
         edges={[{ from: "in", to: "tool", delay: 40 }, { from: "tool", to: "ai", delay: 55 }, { from: "mem", to: "ai", delay: 80, accent: "secondary" }, { from: "ai", to: "out", delay: 95 }]}
       />
       <div style={{ position: "absolute", top: 1400, right: 150, left: 90, direction: "rtl", display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap" }}>
-        <DevBadge delay={100} size={30} label={b.status === "ready" ? "هوية جاهزة" : "هوية تنتظر بيانات العميل"} />
+        <DevBadge delay={100} size={30} label={b.status === "ready" ? "هوية جاهزة" : b.status === "draft" ? "هوية مبدئية" : "هوية تنتظر بيانات العميل"} />
         <Chip delay={110} size={30}>primary</Chip>
         <Chip delay={115} size={30} accent={b.colors.secondary}>secondary</Chip>
       </div>
-      <Finish top={0.2} bottom={0.3} />
+      {b.isLight ? null : <Finish top={0.2} bottom={0.3} />}
     </AbsoluteFill>
   );
 };
 
 export const Showcase: React.FC<{ brand: string }> = ({ brand }) => (
   <BrandProvider id={brand}>
-    <Inner />
+    <Surface mode="graphic">
+      <Inner />
+    </Surface>
   </BrandProvider>
 );
 export const showcaseBrandStatus = (id: string) => resolveBrand(id).status;

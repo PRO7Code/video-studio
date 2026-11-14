@@ -1,7 +1,7 @@
 import React from "react";
 import { interpolate, spring, useCurrentFrame, useVideoConfig, Easing } from "remotion";
 import { arabic, latin, mono } from "./theme";
-import { useBrand, brandGradient } from "./brand";
+import { useBrand, brandGradient, useInk, withAlpha } from "./brand";
 
 const isLatin = (w: string) => /[A-Za-z0-9]/.test(w) && !/[؀-ۿ]/.test(w);
 
@@ -34,6 +34,7 @@ export const Words: React.FC<{
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const b = useBrand();
+  const ink = useInk();
   const words = text.split(" ");
   const exit =
     exitAt === undefined
@@ -55,8 +56,8 @@ export const Words: React.FC<{
         fontFamily: arabic,
         fontWeight: weight,
         fontSize: size,
-        color: color ?? b.colors.text,
-        textShadow: "0 6px 30px rgba(0,0,0,0.45)",
+        color: color ?? ink,
+        textShadow: b.isLight && ink === b.colors.text ? "none" : "0 6px 30px rgba(0,0,0,0.45)",
       }}
     >
       {words.map((w, i) => {
@@ -86,7 +87,7 @@ export const Words: React.FC<{
                     backgroundClip: "text",
                     color: "transparent",
                     textShadow: "none",
-                    filter: `blur(${(1 - p) * 10 + exit * 8}px) drop-shadow(0 6px 24px rgba(0,0,0,0.5))`,
+                    filter: `blur(${(1 - p) * 10 + exit * 8}px)${b.isLight && ink === b.colors.text ? "" : " drop-shadow(0 6px 24px rgba(0,0,0,0.5))"}`,
                     paddingBottom: size * 0.08,
                   }
                 : {}),
@@ -108,6 +109,7 @@ export const Kicker: React.FC<{ num: string; label: string; delay?: number }> = 
 }) => {
   const frame = useCurrentFrame();
   const b = useBrand();
+  const ink = useInk();
   const p = interpolate(frame - delay, [0, 14], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
@@ -123,7 +125,7 @@ export const Kicker: React.FC<{ num: string; label: string; delay?: number }> = 
         fontFamily: arabic,
         fontSize: 38,
         fontWeight: 400,
-        color: b.colors.text,
+        color: ink,
         opacity: p,
       }}
     >
@@ -145,6 +147,7 @@ export const Chip: React.FC<{
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const b = useBrand();
+  const ink = useInk();
   const accent = accentProp ?? b.colors.primary;
   const p = spring({ frame: frame - delay, fps, config: { damping: 14, stiffness: 160 } });
   return (
@@ -155,10 +158,10 @@ export const Chip: React.FC<{
         gap: 14,
         padding: `${size * 0.36}px ${size * 0.7}px`,
         borderRadius: 999,
-        background: "rgba(10,18,40,0.72)",
+        background: b.colors.surface,
         border: `2px solid ${accent}`,
-        boxShadow: `0 0 ${30 * p}px ${accent}55, inset 0 0 20px ${accent}22`,
-        color: b.colors.text,
+        boxShadow: `0 0 ${30 * p}px ${withAlpha(accent, 0.33)}, inset 0 0 20px ${withAlpha(accent, 0.13)}`,
+        color: b.isLight && ink === b.colors.text ? b.colors.text : b.colors.onMedia,
         fontFamily: latin,
         fontWeight: 700,
         fontSize: size,
@@ -190,7 +193,7 @@ export const DevBadge: React.FC<{ delay?: number; size?: number; label?: string 
         padding: `${size * 0.35}px ${size * 0.75}px`,
         borderRadius: 999,
         alignSelf: "flex-start",
-        background: `${amber}24`,
+        background: withAlpha(amber, 0.14),
         border: `2px solid ${amber}`,
         color: amber,
         fontFamily: arabic,

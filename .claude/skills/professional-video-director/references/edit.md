@@ -18,8 +18,21 @@ Review a brand with the media-free composition `Showcase-<id>`. Never invent a c
 | `zoomBlur` | push-through transition |
 | `SfxTrack` + `audio.ts` | cue sheet; `musicDuck`, `transitionCue` (whoosh −6 f), `popCue`, `tickCue`, `typingCues` |
 
-## Compositions
-`Ad` (timeline JSON, `brand` prop) · `RimadiLookTest` / `RimadiLookCompare` · `Showcase-<brand>`.
+## Compositions (templates = one component + a JSON per video)
+| Composition | Template | Config |
+|---|---|---|
+| `Ad` | generic timeline ad | timeline JSON |
+| `RimadiLookTest` / `RimadiLookCompare` | environment test / review grid | props |
+| `Showcase-<brand>` | media-free brand review | — |
+
+## Brands
+`brands/<id>/brand.json` → `npm run brands` (validates + regenerates `brands.generated.ts`; no code edits).
+Keys: background, surface, primary, secondary, accent, text, onMedia, muted (+ optional gradient). Missing/invalid →
+studio fallback; text/surface/muted derived for contrast on light backgrounds. `<Surface mode="graphic">` for text on
+the brand background, default "media" for text over footage.
+
+## Checks
+`cd core/remotion && npm run check` = brand registry check + TypeScript + unit tests (audio, brands).
 
 ## Rules
 - 1080×1920, 30 fps; safe zone top 250, bottom 1480, left 90, right 150.

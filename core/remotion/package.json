@@ -28,7 +28,10 @@
     "dev": "remotion studio",
     "build": "remotion bundle",
     "upgrade": "remotion upgrade",
-    "lint": "eslint src && tsc"
+    "lint": "eslint src && tsc",
+    "brands": "node ../../scripts/brands.mjs",
+    "test": "node --test tests/*.test.ts tests/*.test.mjs",
+    "check": "node ../../scripts/brands.mjs --check && tsc --noEmit && node --test tests/*.test.ts tests/*.test.mjs"
   },
   "allowScripts": {
     "esbuild": false

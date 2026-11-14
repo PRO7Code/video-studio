@@ -1,5 +1,6 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame, random } from "remotion";
+import { useBrand, withAlpha } from "./brand";
 
 /** Cinematic finishing: vignette, top/bottom gradients for legibility, animated grain. */
 export const Finish: React.FC<{ top?: number; bottom?: number }> = ({
@@ -7,12 +8,13 @@ export const Finish: React.FC<{ top?: number; bottom?: number }> = ({
   bottom = 0.65,
 }) => {
   const frame = useCurrentFrame();
+  const sc = useBrand().colors.scrim;
   const seed = Math.floor(frame / 2) % 12;
   return (
     <AbsoluteFill style={{ pointerEvents: "none" }}>
       <AbsoluteFill
         style={{
-          background: `linear-gradient(180deg, rgba(7,12,24,${top}) 0%, rgba(7,12,24,0) 32%, rgba(7,12,24,0) 58%, rgba(7,12,24,${bottom}) 100%)`,
+          background: `linear-gradient(180deg, ${withAlpha(sc, top)} 0%, ${withAlpha(sc, 0)} 32%, ${withAlpha(sc, 0)} 58%, ${withAlpha(sc, bottom)} 100%)`,
         }}
       />
       <AbsoluteFill

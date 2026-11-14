@@ -2,7 +2,8 @@ import React from "react";
 import { AbsoluteFill, OffthreadVideo, staticFile, useCurrentFrame, interpolate, Easing } from "remotion";
 import { Words } from "./lib/Type";
 import { Finish } from "./lib/Overlays";
-import { C, arabic } from "./lib/theme";
+import { arabic } from "./lib/theme";
+import { useBrand, withAlpha } from "./lib/brand";
 
 /**
  * "Same gathering, the world changes": every look is generated from the SAME source take, so people, hands and the
@@ -19,6 +20,7 @@ const Layer: React.FC<{ src: string }> = ({ src }) => (
 
 export const LookTest: React.FC<LookTestProps> = ({ looks, segFrames, wipeFrames, showLabels }) => {
   const f = useCurrentFrame();
+  const b = useBrand();
   const idx = Math.min(looks.length - 1, Math.floor(f / segFrames));
   const local = f - idx * segFrames;
   const next = idx + 1 < looks.length ? idx + 1 : null;
@@ -34,7 +36,7 @@ export const LookTest: React.FC<LookTestProps> = ({ looks, segFrames, wipeFrames
   // RTL: the new world enters from the right edge
   const edge = 100 - p * 100;
   return (
-    <AbsoluteFill style={{ backgroundColor: C.ink }}>
+    <AbsoluteFill style={{ backgroundColor: b.colors.background }}>
       <Layer src={looks[idx].src} />
       {next !== null && p > 0 ? (
         <>
@@ -48,8 +50,8 @@ export const LookTest: React.FC<LookTestProps> = ({ looks, segFrames, wipeFrames
               bottom: 0,
               left: `calc(${edge}% - 3px)`,
               width: 6,
-              background: "rgba(255,214,150,0.95)",
-              boxShadow: "0 0 60px 24px rgba(255,190,110,0.55)",
+              background: withAlpha(b.colors.accent, 0.95),
+              boxShadow: `0 0 60px 24px ${withAlpha(b.colors.accent, 0.55)}`,
             }}
           />
         </>
@@ -58,7 +60,7 @@ export const LookTest: React.FC<LookTestProps> = ({ looks, segFrames, wipeFrames
       {showLabels ? (
         <AbsoluteFill style={{ justifyContent: "flex-end", padding: "0 150px 470px 90px" }}>
           <Words key={idx} text={looks[idx].label} size={72} />
-          <div style={{ fontFamily: arabic, color: C.muted, fontSize: 30, direction: "rtl", marginTop: 8 }}>
+          <div style={{ fontFamily: arabic, color: withAlpha(b.colors.onMedia, 0.72), fontSize: 30, direction: "rtl", marginTop: 8 }}>
             {`اختبار بيئة · ${'٠١٢٣٤٥٦٧٨٩'[idx + 1]} من ${'٠١٢٣٤٥٦٧٨٩'[looks.length]}`}
           </div>
         </AbsoluteFill>

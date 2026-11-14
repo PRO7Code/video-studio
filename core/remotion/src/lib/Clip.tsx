@@ -8,6 +8,7 @@ import {
   useCurrentFrame,
   Easing,
 } from "remotion";
+import { useBrand, withAlpha } from "./brand";
 
 export type Seg = { frames: number; rate: number };
 
@@ -43,6 +44,7 @@ export const Clip: React.FC<Props> = ({
   fit = "cover",
 }) => {
   const frame = useCurrentFrame();
+  const sc = useBrand().colors.scrim;
   const s = interpolate(frame, [0, duration], zoom, {
     easing: Easing.bezier(0.33, 0, 0.2, 1),
     extrapolateRight: "clamp",
@@ -74,7 +76,7 @@ export const Clip: React.FC<Props> = ({
   });
   const o = origin ?? focus;
   return (
-    <AbsoluteFill style={{ overflow: "hidden", backgroundColor: "#000" }}>
+    <AbsoluteFill style={{ overflow: "hidden", backgroundColor: sc }}>
       <AbsoluteFill
         style={{
           transform: `scale(${s})`,
@@ -85,7 +87,7 @@ export const Clip: React.FC<Props> = ({
         {parts}
       </AbsoluteFill>
       {dim > 0 ? (
-        <AbsoluteFill style={{ backgroundColor: `rgba(7,12,24,${dim})` }} />
+        <AbsoluteFill style={{ backgroundColor: withAlpha(sc, dim) }} />
       ) : null}
     </AbsoluteFill>
   );

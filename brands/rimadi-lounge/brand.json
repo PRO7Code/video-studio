@@ -1,6 +1,27 @@
 {
-  "id": "rimadi-lounge", "name": "Rimadi Lounge", "nameAr": "رمادي لاونج", "status": "needs-input",
-  "colors": { "ink": null, "primary": null, "secondary": null, "accent": null, "text": null, "muted": null },
-  "fonts": { "arabic": "Readex Pro", "latin": "Space Grotesk", "mono": "JetBrains Mono" },
-  "logo": null, "tone": null, "do": [], "dont": []
+  "id": "rimadi-lounge",
+  "name": "Rimadi Lounge",
+  "nameAr": "رمادي لاونج",
+  "status": "needs-input",
+  "colors": {
+    "background": null,
+    "surface": null,
+    "primary": null,
+    "secondary": null,
+    "accent": null,
+    "text": null,
+    "onMedia": null,
+    "muted": null
+  },
+  "gradient": null,
+  "fonts": {
+    "arabic": "Readex Pro",
+    "latin": "Space Grotesk",
+    "mono": "JetBrains Mono"
+  },
+  "logo": null,
+  "tone": null,
+  "do": [],
+  "dont": [],
+  "_note": "needs-input: colours, logo and tone must come from the owner; nothing here is approved."
 }

@@ -93,7 +93,7 @@ export const AdTimeline: React.FC<AdProps> = (p) => {
   });
   return (
     <BrandProvider id={p.brand ?? "studio"}>
-    <AbsoluteFill style={{ backgroundColor: resolveBrand(p.brand ?? "studio").colors.ink }}>
+    <AbsoluteFill style={{ backgroundColor: resolveBrand(p.brand ?? "studio").colors.background }}>
       <TransitionSeries>{items}</TransitionSeries>
       {p.music ? (
         <Html5Audio

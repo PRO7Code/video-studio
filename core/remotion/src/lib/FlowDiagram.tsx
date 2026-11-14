@@ -1,7 +1,7 @@
 import React from "react";
 import { interpolate, spring, useCurrentFrame, useVideoConfig, Easing } from "remotion";
 import { arabic, latin } from "./theme";
-import { useBrand, brandGradient } from "./brand";
+import { useBrand, brandGradient, useInk, useMutedInk, withAlpha } from "./brand";
 
 /**
  * Data-driven animated architecture / process diagram (from the Anan "technical project" scene).
@@ -15,20 +15,22 @@ const NodeBox: React.FC<{ n: FlowNode }> = ({ n }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const b = useBrand();
+  const ink = useInk();
+  const mutedInk = useMutedInk();
   const accent = b.colors[n.accent ?? "primary"];
   const p = spring({ frame: frame - n.delay, fps, config: { damping: 15, stiffness: 150 } });
   const pulse = n.big ? 0.6 + 0.4 * Math.sin((frame - n.delay) / 8) : 0.4;
   return (
     <div style={{ position: "absolute", left: n.x - n.w / 2, top: n.y, width: n.w, transform: `translateY(-50%) scale(${0.8 + 0.2 * p})`, opacity: p,
-      padding: n.big ? "30px 26px" : "20px 22px", borderRadius: n.big ? 36 : 26, background: `${b.colors.ink}e0`,
-      border: `${n.big ? 3 : 2}px solid ${accent}`, boxShadow: `0 0 ${n.big ? 60 * pulse : 18}px ${accent}66`, textAlign: "center",
+      padding: n.big ? "30px 26px" : "20px 22px", borderRadius: n.big ? 36 : 26, background: b.colors.surface,
+      border: `${n.big ? 3 : 2}px solid ${accent}`, boxShadow: `0 0 ${n.big ? 60 * pulse : 18}px ${withAlpha(accent, 0.4)}`, textAlign: "center",
       display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         {n.icon}
         <div style={{ fontFamily: n.arabicTitle ? arabic : latin, fontWeight: 700, fontSize: n.big ? 62 : 40, letterSpacing: n.arabicTitle ? 0 : -1, direction: n.arabicTitle ? "rtl" : "ltr",
-          ...(n.big ? { backgroundImage: brandGradient(b), WebkitBackgroundClip: "text", color: "transparent" } : { color: b.colors.text }) }}>{n.title}</div>
+          ...(n.big ? { backgroundImage: brandGradient(b), WebkitBackgroundClip: "text", color: "transparent" } : { color: ink }) }}>{n.title}</div>
       </div>
-      {n.sub ? <div style={{ fontFamily: arabic, fontSize: n.big ? 32 : 27, color: b.colors.muted, direction: "rtl" }}>{n.sub}</div> : null}
+      {n.sub ? <div style={{ fontFamily: arabic, fontSize: n.big ? 32 : 27, color: mutedInk, direction: "rtl" }}>{n.sub}</div> : null}
     </div>
   );
 };

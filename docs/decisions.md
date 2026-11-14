@@ -31,3 +31,11 @@ delivered video · 5 s test before full production · no unverified claims or in
   the Anan project itself is left untouched (frozen delivered code).
 - Brand system: brands/<id>/brand.json; only `anan` has values (as used in the delivered reel). Others are
   "needs-input" until the owner provides colours, logo and tone.
+
+## Phase 2 hardening — 2026-11-14
+- Brand registry is generated from brands/*/brand.json by scripts/brands.mjs (validation: id/folder, colour format,
+  allowed keys, bundled fonts, "ready" needs core colours). Colour key `ink` renamed to `background`.
+- All hard-coded colours removed from shared components (scrim/surface/ink derived from the brand).
+- musicDuck rewritten without Remotion's interpolate: short ranges, zero-length/reversed ranges, overlaps (deepest
+  level wins) and compositions shorter than the fade no longer throw.
+- LEF brand set to draft: #0066CC primary, #FF6600 secondary/accent, #F8FAFC background (owner-provided, may change).

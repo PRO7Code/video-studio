@@ -1,6 +1,27 @@
 {
-  "id": "lef-step", "name": "LEF Academy — STEP DECODE", "nameAr": "أكاديمية LEF — STEP DECODE", "status": "needs-input",
-  "colors": { "ink": null, "primary": null, "secondary": null, "accent": null, "text": null, "muted": null },
-  "fonts": { "arabic": "Readex Pro", "latin": "Space Grotesk", "mono": "JetBrains Mono" },
-  "logo": null, "tone": null, "do": [], "dont": []
+  "id": "lef-step",
+  "name": "LEF Academy — STEP DECODE",
+  "nameAr": "أكاديمية LEF — STEP DECODE",
+  "status": "draft",
+  "colors": {
+    "background": "#F8FAFC",
+    "surface": null,
+    "primary": "#0066CC",
+    "secondary": "#FF6600",
+    "accent": "#FF6600",
+    "text": null,
+    "onMedia": null,
+    "muted": null
+  },
+  "gradient": null,
+  "fonts": {
+    "arabic": "Readex Pro",
+    "latin": "Space Grotesk",
+    "mono": "JetBrains Mono"
+  },
+  "logo": null,
+  "tone": null,
+  "do": [],
+  "dont": [],
+  "_note": "Initial colours from the owner (2026-11-14), may change. No approved logo yet. text/surface/muted are derived for contrast, not brand colours."
 }

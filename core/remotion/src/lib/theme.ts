@@ -12,17 +12,6 @@ loadFont({ family: arabic, url: staticFile("fonts/readex-latin.woff2"), weight: 
 loadFont({ family: latin, url: staticFile("fonts/grotesk.woff2"), weight: "300 700" });
 loadFont({ family: mono, url: staticFile("fonts/mono.woff2"), weight: "100 800" });
 
-export const C = {
-  ink: "#070C18",
-  navy: "#0B1530",
-  teal: "#2EE6C5",
-  cyan: "#38BDF8",
-  amber: "#FFB547",
-  white: "#F5F7FB",
-  muted: "rgba(245,247,251,0.72)",
-};
-
-export const techGradient = `linear-gradient(100deg, ${C.teal} 0%, ${C.cyan} 55%, #A78BFA 100%)`;
-
+// Colours live in brands/<id>/brand.json (see brand.ts). Only layout constants stay here.
 // Safe zone for TikTok / Reels / Snapchat (1080x1920)
 export const SAFE = { top: 250, bottom: 1480, left: 90, right: 150 };
