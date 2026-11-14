@@ -1,6 +1,7 @@
 import React from "react";
 import { interpolate, spring, useCurrentFrame, useVideoConfig, Easing } from "remotion";
-import { C, arabic, latin, mono, techGradient } from "./theme";
+import { arabic, latin, mono } from "./theme";
+import { useBrand, brandGradient } from "./brand";
 
 const isLatin = (w: string) => /[A-Za-z0-9]/.test(w) && !/[؀-ۿ]/.test(w);
 
@@ -25,13 +26,14 @@ export const Words: React.FC<{
   stagger = 4,
   size = 88,
   weight = 700,
-  color = C.white,
+  color,
   align = "right",
   exitAt,
   lineHeight = 1.25,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const b = useBrand();
   const words = text.split(" ");
   const exit =
     exitAt === undefined
@@ -53,7 +55,7 @@ export const Words: React.FC<{
         fontFamily: arabic,
         fontWeight: weight,
         fontSize: size,
-        color,
+        color: color ?? b.colors.text,
         textShadow: "0 6px 30px rgba(0,0,0,0.45)",
       }}
     >
@@ -79,7 +81,7 @@ export const Words: React.FC<{
                     fontFamily: latin,
                     direction: "ltr",
                     letterSpacing: -size * 0.02,
-                    backgroundImage: techGradient,
+                    backgroundImage: brandGradient(b),
                     WebkitBackgroundClip: "text",
                     backgroundClip: "text",
                     color: "transparent",
@@ -105,6 +107,7 @@ export const Kicker: React.FC<{ num: string; label: string; delay?: number }> = 
   delay = 0,
 }) => {
   const frame = useCurrentFrame();
+  const b = useBrand();
   const p = interpolate(frame - delay, [0, 14], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
@@ -120,12 +123,12 @@ export const Kicker: React.FC<{ num: string; label: string; delay?: number }> = 
         fontFamily: arabic,
         fontSize: 38,
         fontWeight: 400,
-        color: C.white,
+        color: b.colors.text,
         opacity: p,
       }}
     >
-      <span style={{ fontFamily: mono, fontWeight: 700, color: C.teal, fontSize: 36 }}>{num}</span>
-      <span style={{ width: 90 * p, height: 3, background: C.teal, borderRadius: 2 }} />
+      <span style={{ fontFamily: mono, fontWeight: 700, color: b.colors.primary, fontSize: 36 }}>{num}</span>
+      <span style={{ width: 90 * p, height: 3, background: b.colors.primary, borderRadius: 2 }} />
       <span style={{ transform: `translateX(${(1 - p) * -20}px)` }}>{label}</span>
     </div>
   );
@@ -138,9 +141,11 @@ export const Chip: React.FC<{
   accent?: string;
   size?: number;
   icon?: React.ReactNode;
-}> = ({ children, delay = 0, accent = C.teal, size = 40, icon }) => {
+}> = ({ children, delay = 0, accent: accentProp, size = 40, icon }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const b = useBrand();
+  const accent = accentProp ?? b.colors.primary;
   const p = spring({ frame: frame - delay, fps, config: { damping: 14, stiffness: 160 } });
   return (
     <div
@@ -153,7 +158,7 @@ export const Chip: React.FC<{
         background: "rgba(10,18,40,0.72)",
         border: `2px solid ${accent}`,
         boxShadow: `0 0 ${30 * p}px ${accent}55, inset 0 0 20px ${accent}22`,
-        color: C.white,
+        color: b.colors.text,
         fontFamily: latin,
         fontWeight: 700,
         fontSize: size,
@@ -169,9 +174,10 @@ export const Chip: React.FC<{
 };
 
 /** "In development" status badge — the agent is a work in progress. */
-export const DevBadge: React.FC<{ delay?: number; size?: number }> = ({ delay = 0, size = 34 }) => {
+export const DevBadge: React.FC<{ delay?: number; size?: number; label?: string }> = ({ delay = 0, size = 34, label = "قيد التطوير" }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const amber = useBrand().colors.accent;
   const p = spring({ frame: frame - delay, fps, config: { damping: 16 } });
   const blink = 0.45 + 0.55 * Math.abs(Math.sin((frame - delay) / 9));
   return (
@@ -184,9 +190,9 @@ export const DevBadge: React.FC<{ delay?: number; size?: number }> = ({ delay = 
         padding: `${size * 0.35}px ${size * 0.75}px`,
         borderRadius: 999,
         alignSelf: "flex-start",
-        background: "rgba(255,181,71,0.14)",
-        border: `2px solid ${C.amber}`,
-        color: C.amber,
+        background: `${amber}24`,
+        border: `2px solid ${amber}`,
+        color: amber,
         fontFamily: arabic,
         fontWeight: 600,
         fontSize: size,
@@ -199,12 +205,12 @@ export const DevBadge: React.FC<{ delay?: number; size?: number }> = ({ delay = 
           width: size * 0.36,
           height: size * 0.36,
           borderRadius: 99,
-          background: C.amber,
+          background: amber,
           opacity: blink,
-          boxShadow: `0 0 16px ${C.amber}`,
+          boxShadow: `0 0 16px ${amber}`,
         }}
       />
-      قيد التطوير
+      {label}
     </div>
   );
 };

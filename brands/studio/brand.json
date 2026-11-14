@@ -1,0 +1,6 @@
+{
+  "id": "studio", "name": "Studio default", "nameAr": "الاستوديو", "status": "ready",
+  "colors": { "ink": "#070C18", "primary": "#2EE6C5", "secondary": "#38BDF8", "accent": "#FFB547", "text": "#F5F7FB", "muted": "rgba(245,247,251,0.72)" },
+  "fonts": { "arabic": "Readex Pro", "latin": "Space Grotesk", "mono": "JetBrains Mono" },
+  "logo": null, "tone": "clean, modern, premium", "do": [], "dont": []
+}

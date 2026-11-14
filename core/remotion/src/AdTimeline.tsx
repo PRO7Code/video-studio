@@ -7,7 +7,8 @@ import { Clip, Seg } from "./lib/Clip";
 import { Finish } from "./lib/Overlays";
 import { Words, DevBadge } from "./lib/Type";
 import { SfxTrack, Cue } from "./lib/SfxTrack";
-import { C, SAFE } from "./lib/theme";
+import { SAFE } from "./lib/theme";
+import { BrandProvider, resolveBrand } from "./lib/brand";
 
 /**
  * Generic, data-driven ad: a project writes a timeline.json (scenes → clips + titles),
@@ -28,6 +29,7 @@ export type Scene = {
   volume?: number;
 };
 export type AdProps = {
+  brand?: string; // brands/<id>
   scenes: Scene[];
   music?: string;
   musicVolume?: number;
@@ -90,7 +92,8 @@ export const AdTimeline: React.FC<AdProps> = (p) => {
     );
   });
   return (
-    <AbsoluteFill style={{ backgroundColor: C.ink }}>
+    <BrandProvider id={p.brand ?? "studio"}>
+    <AbsoluteFill style={{ backgroundColor: resolveBrand(p.brand ?? "studio").colors.ink }}>
       <TransitionSeries>{items}</TransitionSeries>
       {p.music ? (
         <Html5Audio
@@ -100,5 +103,6 @@ export const AdTimeline: React.FC<AdProps> = (p) => {
       ) : null}
       {p.cues ? <SfxTrack cues={p.cues} /> : null}
     </AbsoluteFill>
+    </BrandProvider>
   );
 };

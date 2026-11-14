@@ -1,0 +1,6 @@
+{
+  "id": "hoyo-burger", "name": "Hoyo Burger", "nameAr": "هويو برجر", "status": "needs-input",
+  "colors": { "ink": null, "primary": null, "secondary": null, "accent": null, "text": null, "muted": null },
+  "fonts": { "arabic": "Readex Pro", "latin": "Space Grotesk", "mono": "JetBrains Mono" },
+  "logo": null, "tone": null, "do": [], "dont": []
+}

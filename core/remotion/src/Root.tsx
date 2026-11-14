@@ -2,6 +2,8 @@ import React from "react";
 import { Composition, staticFile } from "remotion";
 import { AdTimeline, AdProps, calcAdMetadata } from "./AdTimeline";
 import { LookTest, LookCompare } from "./LookTest";
+import { Showcase } from "./Showcase";
+import { BRAND_IDS } from "./lib/brand";
 
 // Each project registers a composition from its timeline.json (copied to public/projects/<name>/).
 // Example placeholder; replace scenes with real/generated clips before rendering.
@@ -56,6 +58,9 @@ export const RemotionRoot: React.FC = () => (
         ],
       }}
     />
+    {BRAND_IDS.map((id) => (
+      <Composition key={id} id={`Showcase-${id}`} component={Showcase} width={1080} height={1920} fps={30} durationInFrames={180} defaultProps={{ brand: id }} />
+    ))}
   </>
 );
 void staticFile;

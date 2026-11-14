@@ -23,3 +23,11 @@
 ## Client rules
 Arabic replies · approval before any cost, upload, push, account/env change or big download · never change a
 delivered video · 5 s test before full production · no unverified claims or invented people/speech.
+
+## Phase 2 (core + brands) — 2026-11-14
+- Proof of no loss: `projects/anan/thursday-reel` re-rendered from the repo is byte-identical to the delivered
+  `anan-thursday-reel.mp4` (same file SHA-256, same decoded video/audio MD5, SSIM 1.0).
+- Reusable parts of the Anan reel extracted into core (Chapters, HighlightBox, FlowDiagram, musicDuck, SFX cue rules);
+  the Anan project itself is left untouched (frozen delivered code).
+- Brand system: brands/<id>/brand.json; only `anan` has values (as used in the delivered reel). Others are
+  "needs-input" until the owner provides colours, logo and tone.

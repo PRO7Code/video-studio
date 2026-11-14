@@ -16,7 +16,7 @@ bash scripts/doctor.sh        # ما يعمل وما يحتاج إعدادًا
 | `core/remotion/` | محرك القوالب: `Ad`، `RimadiLookTest`، `RimadiLookCompare`، مكتبة `src/lib` |
 | `tools/` | higgsfield (بتقدير وموافقة)، product_lock (place/lock)، audio (تفريغ، موسيقى، مؤثرات) |
 | `registry/tools.yaml` | سجل الأدوات: الحالة، الترخيص، التكلفة، الحجم |
-| `brands/` | هوية كل علامة (brand.json) |
+| `brands/` | هوية كل علامة (brand.json) — راجعها بعرض `Showcase-<id>` |
 | `projects/anan/thursday-reel/` | أول مشروع تطبيقي: فيديو عنان المسلّم (كود فقط) |
 | `projects/lef-academy/step-decode/` | STEP DECODE |
 | `projects/tech-content/` | المحتوى التقني |
