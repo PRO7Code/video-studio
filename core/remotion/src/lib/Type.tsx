@@ -20,6 +20,7 @@ export const Words: React.FC<{
   align?: "right" | "center";
   exitAt?: number;
   lineHeight?: number;
+  plainLatin?: boolean; // Latin terms keep the text colour (e.g. on a coloured pill)
 }> = ({
   text,
   delay = 0,
@@ -30,6 +31,7 @@ export const Words: React.FC<{
   align = "right",
   exitAt,
   lineHeight = 1.25,
+  plainLatin = false,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -66,7 +68,8 @@ export const Words: React.FC<{
           fps,
           config: { damping: 18, stiffness: 140, mass: 0.7 },
         });
-        const lat = isLatin(w);
+        const lat = isLatin(w) && !plainLatin;
+        const latPlain = isLatin(w) && plainLatin;
         const label = w.replace(/_/g, " ");
         return (
           <span
@@ -77,6 +80,7 @@ export const Words: React.FC<{
               transform: `translateY(${(1 - p) * size * 0.6 - exit * 30}px)`,
               filter: `blur(${(1 - p) * 10 + exit * 8}px)`,
               unicodeBidi: "isolate",
+              ...(latPlain ? { fontFamily: latin, direction: "ltr" as const } : {}),
               ...(lat
                 ? {
                     fontFamily: latin,

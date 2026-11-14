@@ -41,3 +41,14 @@ delivered video · 5 s test before full production · no unverified claims or in
 - LEF brand set to draft: #0066CC primary, #FF6600 secondary/accent, #F8FAFC background (owner-provided, may change).
 - STEP DECODE template (StepDecode composition) driven by episode JSON; sample is a studio-written practice question,
   labelled as such until the teacher reviews it.
+
+## STEP DECODE v2 — 2026-11-14
+- Owner direction: hook «درست STEP ولسه تغلط في هالأسئلة؟», bigger type, 3 s countdown, sequential elimination with
+  reasons, clue (would + base verb) → rule (If + past simple → would + base verb) → meaning (hypothetical), two-line CTA,
+  20–30 s, practice-question label, no score promises.
+- Voice: the Piper ar_JO-kareem voice is MIT-engine but its dataset licence could not be verified → not "approved".
+  v1 (with that voice) is kept as an internal draft only; v2 is text-only with an original music bed.
+- Sounds: uisfx "soft" pack (audio CC0) for UI moments; soft whooshes for the two big moves.
+- Measured sync (SFX-only render, onset detection): 15 UI cues within 0–5 ms of their frames; whooshes start on
+  their frame and peak +0.38 s (mid-move).
+- Delivery loudness: tools/audio/master.sh → -15.9 LUFS, video stream unchanged.

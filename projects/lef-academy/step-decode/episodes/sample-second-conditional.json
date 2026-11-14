@@ -3,12 +3,30 @@
   "skill": "Grammar",
   "skillAr": "قواعد",
   "hookAr": "تقدر تحلّه قبل ما ينتهي العداد؟",
-  "question": { "stem": "If I ___ more time, I would learn Spanish.", "blank": "___", "highlight": ["If", "would"] },
+  "question": {
+    "stem": "If I ___ more time, I would learn Spanish.",
+    "blank": "___",
+    "highlight": [
+      "If",
+      "would"
+    ]
+  },
   "options": [
-    { "text": "have", "whyAr": "زمن حاضر — لا يتوافق مع would" },
-    { "text": "had" },
-    { "text": "will have", "whyAr": "will لا تأتي بعد If في هذا النوع" },
-    { "text": "having", "whyAr": "ليست فعلًا مصرّفًا — الجملة تحتاج فعلًا" }
+    {
+      "text": "have",
+      "whyAr": "زمن حاضر — لا يتوافق مع would"
+    },
+    {
+      "text": "had"
+    },
+    {
+      "text": "will have",
+      "whyAr": "will لا تأتي بعد If في هذا النوع"
+    },
+    {
+      "text": "having",
+      "whyAr": "ليست فعلًا مصرّفًا — الجملة تحتاج فعلًا"
+    }
   ],
   "correct": 1,
   "rule": {
@@ -19,8 +37,49 @@
   "thinkSeconds": 3,
   "ctaAr": "تابع STEP_DECODE لتحليل أسئلة STEP خطوة بخطوة",
   "handle": null,
-  "sampleLabelAr": "سؤال تدريبي من إعداد الاستوديو للعرض — يراجعه المدرّس قبل النشر",
+  "sampleLabelAr": "سؤال تدريبي من إعداد الاستوديو · صوت مُولَّد آليًا (مسودة) · يراجعه المدرّس قبل النشر",
   "teacher": null,
   "voiceover": null,
-  "music": null
+  "music": null,
+  "vo": [
+    {
+      "phase": "hook",
+      "text": "تَقْدِرُ تَحُلُّهُ قَبْلَ الْعَدَّاد؟"
+    },
+    {
+      "phase": "question",
+      "text": "انْتَبِهْ لِلْكَلِمَتَيْنِ الْمُلَوَّنَتَيْن."
+    },
+    {
+      "phase": "think",
+      "text": "فَكِّرْ جَيِّدًا."
+    },
+    {
+      "phase": "eliminate",
+      "option": 0,
+      "text": "الْأَوَّل: زَمَنٌ حَاضِر."
+    },
+    {
+      "phase": "eliminate",
+      "option": 1,
+      "text": "الثَّالِث: الْمُسْتَقْبَلُ لَا يَأْتِي بَعْدَ إِفْ."
+    },
+    {
+      "phase": "eliminate",
+      "option": 2,
+      "text": "الرَّابِع: لَيْسَ فِعْلًا مُصَرَّفًا."
+    },
+    {
+      "phase": "reveal",
+      "text": "الْإِجَابَةُ الصَّحِيحَة: الْخِيَارُ بِي."
+    },
+    {
+      "phase": "rule",
+      "text": "الشَّرْطِيَّةُ الثَّانِيَة: إِفْ مَعَ الْمَاضِي، وَ وُودْ مَعَ الْفِعْلِ الْمُجَرَّد."
+    },
+    {
+      "phase": "outro",
+      "text": "تَابِعْنَا لِأَسْئِلَةٍ أَكْثَر."
+    }
+  ]
 }
