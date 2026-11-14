@@ -3,15 +3,15 @@
 // Everything is computed from the same model the template renders (stepDecodeTiming + stepDecodeEvents).
 import fs from "node:fs";
 import { stepPhases, stepTotal, phaseAt, type PhaseName } from "../core/remotion/src/templates/stepDecodeTiming.ts";
-import { stepEvents, stepCues, STEM_WORD_GAP, FORMULA_GAP } from "../core/remotion/src/templates/stepDecodeEvents.ts";
+import { stepEvents, stepCues, ruleLoadOf, STEM_WORD_GAP, FORMULA_GAP } from "../core/remotion/src/templates/stepDecodeEvents.ts";
 
 const p = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
 const jsonOut = process.argv.includes("--json") ? process.argv[process.argv.indexOf("--json") + 1] : null;
 const ph = stepPhases({ wrongCount: p.options.length - 1, thinkSeconds: p.thinkSeconds, overrides: p.timing, perOption: p.perOption });
-const ev = stepEvents(ph, p.options.length, p.perOption);
+const ev = stepEvents(ph, p.options.length, p.perOption, ruleLoadOf(p.rule));
 const chips = String(p.rule?.pattern ?? "").split(/\s*(\+|→|->)\s*/).filter((x: string) => x && x.trim());
 const chipIdx = chips.map((c: string, i: number) => (c === "+" || c === "→" || c === "->" ? -1 : i)).filter((i: number) => i >= 0);
-const cues = stepCues(ev, phaseAt(ph, "outro").from, chipIdx);
+const cues = stepCues(ev, phaseAt(ph, "outro").from, chipIdx, p.sfxVolume ?? 1);
 const fps = p.fps ?? 30;
 const s = (f: number) => (f / 30).toFixed(2);
 const fr = (f: number) => Math.round((f * fps) / 30);

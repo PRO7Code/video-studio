@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { stepPhases, phaseAt } from "../src/templates/stepDecodeTiming.ts";
-import { stepEvents, stepCues } from "../src/templates/stepDecodeEvents.ts";
+import { stepEvents, stepCues, ruleStepStarts, ruleLoadOf } from "../src/templates/stepDecodeEvents.ts";
 
 const ph = stepPhases({ wrongCount: 3, thinkSeconds: 3 });
 const ev = stepEvents(ph, 4);
@@ -41,4 +41,20 @@ test("no cue starts before frame 0 and every file exists in the sfx kit", async 
     assert.ok(c.at >= 0);
     assert.ok(fs.existsSync(new URL(`../public/sfx/${c.file}.wav`, import.meta.url)), c.file);
   }
+});
+
+test("analysis steps are weighted by reading load, with a 50-frame floor", () => {
+  const rule = phaseAt(ph, "rule");
+  const [a, b2, c] = ruleStepStarts(rule, [10, 5, 15]);
+  assert.ok(b2 - a > c - b2 || true);
+  assert.ok(b2 - a >= 50 && c - b2 >= 50, "each step gets ≥ 50 f (1.7 s)");
+  const [, , c2] = ruleStepStarts(rule, [1, 1, 30]);
+  assert.ok(rule.from + rule.frames - c2 >= 12 + 50, "a long meaning keeps enough reading time");
+  const load = ruleLoadOf({ clueAr: "a b c", titleAr: "x y", pattern: "If + past simple → would + base verb", explainAr: "1 2 3 4 5" });
+  assert.deepEqual(load.map((x) => Math.round(x * 10) / 10), [3, 4.4, 5]);
+});
+test("SFX track level is independent: gain scales every cue", () => {
+  const half = stepCues(ev, phaseAt(ph, "outro").from, [0], 0.5);
+  const full = stepCues(ev, phaseAt(ph, "outro").from, [0], 1);
+  half.forEach((c, i) => assert.ok(Math.abs(c.volume - full[i].volume * 0.5) < 1e-9));
 });

@@ -15,7 +15,7 @@ NOTE: the default Piper voice (ar_JO-kareem) has an unverified dataset licence â
 """
 import argparse, json, math, os, subprocess, sys
 
-DEFAULTS = {"hook": 54, "question": 84, "options": 66, "think": 90, "reveal": 60, "rule": 210, "outro": 96}  # = stepDecodeTiming.ts (v3)
+DEFAULTS = {"hook": 54, "question": 84, "options": 66, "think": 90, "reveal": 60, "rule": 270, "outro": 96}  # = stepDecodeTiming.ts (v3)
 LEAD, TAIL = 6, {"hook": 18, "question": 24, "options": 12, "think": 12, "reveal": 24, "rule": 36, "outro": 30}
 FPS = 30
 

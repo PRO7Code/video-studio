@@ -2,10 +2,10 @@
 //   node tools/audio/step_events.ts projects/.../out/<slug>.props.json > events.json
 import fs from "node:fs";
 import { stepPhases, stepTotal, phaseAt } from "../../core/remotion/src/templates/stepDecodeTiming.ts";
-import { stepEvents } from "../../core/remotion/src/templates/stepDecodeEvents.ts";
+import { stepEvents, ruleLoadOf } from "../../core/remotion/src/templates/stepDecodeEvents.ts";
 const p = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
 const ph = stepPhases({ wrongCount: p.options.length - 1, thinkSeconds: p.thinkSeconds, overrides: p.timing, perOption: p.perOption });
-const ev = stepEvents(ph, p.options.length, p.perOption);
+const ev = stepEvents(ph, p.options.length, p.perOption, ruleLoadOf(p.rule));
 const s = (f: number) => +(f / 30).toFixed(4);
 console.log(JSON.stringify({
   fps: 30, total: s(stepTotal(ph)),

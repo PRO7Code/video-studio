@@ -70,3 +70,8 @@ Measured sources: (1) the "air" noise layer (7–15 kHz) that ran under the bed 
 Fix: air layer removed, breath swells → tonal swells, voice chain `afftdn → deesser → lowpass 11.5 kHz → soft gate`.
 7–16 kHz share (D): question −21.5 → −28.8 dB, answer −16.0 → −28.2 dB, analysis −28.4 → −38.9 dB, end −28.0 → −32.9 dB.
 English intelligibility unchanged (Whisper exact). If any fizz remains, next step is the fp16 voice model (≈163 MB).
+
+## ✅ Adopted: identity D (owner, 2026-11-14)
+D "Scholar Reveal" = A (Warm Scholar) everywhere + B's answer-reveal. Template kit: `public/sfx/step/*` (tools/audio/step_kit.py);
+music bed: `sonic_identity.py --variant D --bed-tension`. SFX and music are separate tracks: episode `sfxVolume` (SFX master)
+and `music.volume` (bed), plus WAV stems per delivery. D2 (quiz tension) stays available as `--think quiz`, not default.

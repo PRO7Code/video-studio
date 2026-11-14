@@ -8,11 +8,11 @@ export type StepTimingInput = {
 export type PhaseName = "hook" | "question" | "options" | "think" | "eliminate" | "reveal" | "rule" | "outro";
 export type Phase = { name: PhaseName; from: number; frames: number };
 
-// v3 "premium" defaults (frames @30, ~27 s for 4 options): 1.8 s hook, question built word-by-word, quick staggered
-// options, 3 s countdown, 1.6 s per elimination, 2 s reveal, 7 s staged analysis, 3.2 s CTA.
+// v3 "premium" defaults (frames @30, ~29 s for 4 options): 1.8 s hook, question built word-by-word, quick staggered
+// options, 3 s countdown, 1.6 s per elimination, 2 s reveal, 9 s staged analysis (reading-weighted), 3.2 s CTA.
 // Frames are a 30-fps timebase; a 60-fps render simply samples it twice as often. Override per episode with "timing".
 export const STEP_DEFAULTS: Record<PhaseName, number> = {
-  hook: 54, question: 84, options: 66, think: 90, eliminate: 0 /* computed */, reveal: 60, rule: 210, outro: 96,
+  hook: 54, question: 84, options: 66, think: 90, eliminate: 0 /* computed */, reveal: 60, rule: 270, outro: 96,
 };
 export const ELIMINATE_PER_OPTION = 48;
 

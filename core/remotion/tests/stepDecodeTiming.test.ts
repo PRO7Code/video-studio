@@ -2,9 +2,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { stepPhases, stepTotal, phaseAt } from "../src/templates/stepDecodeTiming.ts";
 
-test("4 options (3 wrong) = 27.2 s (inside the 20–30 s target), phases contiguous", () => {
+test("4 options (3 wrong) = 29.2 s (inside the 20–30 s target), phases contiguous", () => {
   const ph = stepPhases({ wrongCount: 3, thinkSeconds: 3 });
-  assert.equal(stepTotal(ph), 816);
+  assert.equal(stepTotal(ph), 876);
   assert.ok(stepTotal(ph) / 30 >= 20 && stepTotal(ph) / 30 <= 30);
   for (let i = 1; i < ph.length; i++) assert.equal(ph[i].from, ph[i - 1].from + ph[i - 1].frames);
   assert.equal(phaseAt(ph, "eliminate").frames, 156);

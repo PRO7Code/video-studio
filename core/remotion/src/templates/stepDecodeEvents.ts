@@ -20,10 +20,25 @@ export const STEM_WORD_GAP = 2.5;
 export const FORMULA_GAP = 5;
 export const OPTION_GAP = 8;
 
-export const stepEvents = (ph: Phase[], optionCount: number, perOption = ELIMINATE_PER_OPTION): StepEvents => {
+/**
+ * Analysis steps get time in proportion to what there is to read (words; formula chips count 0.6 each), with a
+ * 50-frame floor per step; the last step keeps the remaining time until the card leaves.
+ */
+export const ruleStepStarts = (rule: Phase, load: [number, number, number] = [1, 1, 1]): [number, number, number] => {
+  const usable = rule.frames - 8 - 12; // 8 f lead-in, 12 f before the card leaves
+  const w = load.map((x) => Math.max(0.5, x));
+  const total = w[0] + w[1] + w[2];
+  let d0 = Math.max(50, Math.round((usable * w[0]) / total));
+  let d1 = Math.max(50, Math.round((usable * w[1]) / total));
+  const over = d0 + d1 + 50 - usable;
+  if (over > 0) { const k = (d0 + d1 - over) / (d0 + d1); d0 = Math.round(d0 * k); d1 = Math.round(d1 * k); }
+  const a = rule.from + 8;
+  return [a, a + d0, a + d0 + d1];
+};
+
+export const stepEvents = (ph: Phase[], optionCount: number, perOption = ELIMINATE_PER_OPTION, ruleLoad?: [number, number, number]): StepEvents => {
   const q = phaseAt(ph, "question"), op = phaseAt(ph, "options"), th = phaseAt(ph, "think"), rule = phaseAt(ph, "rule"), out = phaseAt(ph, "outro");
-  const stepGap = Math.max(24, Math.floor((rule.frames - 30) / 3));
-  const steps: [number, number, number] = [rule.from + 8, rule.from + 8 + stepGap, rule.from + 8 + 2 * stepGap];
+  const steps = ruleStepStarts(rule, ruleLoad);
   return {
     hookExit: q.from - 8,
     questionIn: q.from,
@@ -39,8 +54,15 @@ export const stepEvents = (ph: Phase[], optionCount: number, perOption = ELIMINA
   };
 };
 
+/** reading load of the three analysis steps from the episode text */
+export const ruleLoadOf = (rule: { clueAr?: string; titleAr: string; pattern?: string; explainAr: string }): [number, number, number] => {
+  const words = (x?: string) => (x ?? "").split(/\s+/).filter(Boolean).length;
+  const chips = (rule.pattern ?? "").split(/\s*(?:\+|→|->)\s*/).filter(Boolean).length;
+  return [words(rule.clueAr), words(rule.titleAr) + 0.6 * chips, words(rule.explainAr)];
+};
+
 /** STEP DECODE sound kit (public/sfx/step/*, original, studio-owned): whoosh · pop · tick · strike · success · chime · tap · logo */
-export const stepCues = (ev: StepEvents, outroFrom: number, formulaChipIdx: number[] = []): Cue[] => [
+export const stepCues = (ev: StepEvents, outroFrom: number, formulaChipIdx: number[] = [], gain = 1): Cue[] => ([
   { at: 0, file: "step/hit", volume: 0.5 },
   { at: Math.max(0, ev.hookExit - 4), file: "step/whoosh", volume: 0.42 },
   ...ev.optionIn.map((at, i) => ({ at, file: `step/pop${Math.min(5, i + 1)}`, volume: 0.5 })),
@@ -51,4 +73,4 @@ export const stepCues = (ev: StepEvents, outroFrom: number, formulaChipIdx: numb
   ...formulaChipIdx.map((i) => ({ at: ev.formulaFrom + i * FORMULA_GAP, file: "step/tap", volume: 0.3 })),
   { at: Math.max(0, outroFrom - 6), file: "step/whoosh", volume: 0.34 },
   { at: ev.outroLines[1], file: "step/logo", volume: 0.5 },
-];
+] as Cue[]).map((c) => ({ ...c, volume: c.volume * gain }));

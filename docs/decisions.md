@@ -62,3 +62,13 @@ delivered video · 5 s test before full production · no unverified claims or in
 - Sound: template-owned kit from the preferred identity (A warm + B reveal); tension layers on the D bed (--bed-tension).
 - Measured: 19/22 SFX within one 60-fps frame of their beat (others: frame-0 artefact, two slow-attack whooshes by design);
   earshot launch-grade 18/20 (minor: little air after the hiss fix, wide stereo). No voice merged (Arabic slots documented).
+
+## STEP DECODE v3.1 — final review fixes (2026-11-14)
+- Delivery check: the source renders are 1080×1920 @ 60 fps (ffprobe: 1752 frames, 29.2 s); the 512×910 @ 30 fps file the
+  owner received was the chat app's inline preview. Deliveries are now sent as attachments + ffprobe report + SHA-256.
+- Export quality raised: CRF 10, x264 slow (≈3.4 Mbps — flat graphics compress well; visually near-lossless).
+- Elimination reasons: 40 px bold chips with filled ✕, full contrast (no longer inherit the struck card's dimming),
+  newest reason emphasised, earlier ones settle; mixed Arabic/English order verified at full resolution.
+- Analysis: 9 s (was 7 s), steps weighted by reading load (ruleLoadOf), card grows step by step; other scenes unchanged.
+- Identity D adopted; SFX and music independently controllable (sfxVolume, music.volume, stems).
+- Sync: 19/19 point sounds within one 60-fps frame (max 5.8 ms).

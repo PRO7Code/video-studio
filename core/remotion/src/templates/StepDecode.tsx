@@ -8,7 +8,7 @@ import type { Cue } from "../lib/SfxTrack";
 import { musicDuck } from "../lib/audio";
 import { KineticText, useT, springT, ease, motionBlur, BASE_FPS } from "../lib/Kinetic";
 import { stepPhases, stepTotal, phaseAt, strikeFrame, ELIMINATE_PER_OPTION, type Phase, type PhaseName } from "./stepDecodeTiming";
-import { stepEvents, stepCues, STEM_WORD_GAP, FORMULA_GAP, type StepEvents } from "./stepDecodeEvents";
+import { stepEvents, stepCues, ruleLoadOf, STEM_WORD_GAP, FORMULA_GAP, type StepEvents } from "./stepDecodeEvents";
 
 /**
  * STEP DECODE – question breakdown (LEF Academy), v3 "premium motion".
@@ -40,6 +40,7 @@ export type StepDecodeProps = {
   timing?: Partial<Record<PhaseName, number>>;
   perOption?: number;
   sfx?: boolean; // built-in STEP DECODE sound kit (default true)
+  sfxVolume?: number; // master level of the SFX track (default 1) — independent from music.volume
   fps?: 30 | 60; // render rate; the timeline stays the same
 };
 
@@ -62,8 +63,9 @@ export const calcStepMetadata: CalculateMetadataFunction<StepDecodeProps> = ({ p
 
 const norm = (w: string) => w.replace(/[^A-Za-z']/g, "").toLowerCase();
 const CARD_TOP = 300;
-const OPT_TOP = 700;
-const OPT_STEP = 166;
+const OPT_TOP = 690;
+const OPT_STEP = 176; // room for a 40-px reason chip under each option
+const ROWS_END = (n: number) => OPT_TOP + (n - 1) * OPT_STEP + 116;
 const SIDE = { left: SAFE.left - 20, right: SAFE.right - 70 };
 
 /** layered depth: inner top highlight + contact shadow + soft brand-tinted key shadow */
@@ -195,9 +197,9 @@ const OptionRow: React.FC<{ p: StepDecodeProps; t: number; ev: StepEvents; i: nu
   const check = isCorrect ? ease(t, ev.reveal + 4, ev.reveal + 14) : 0;
   return (
     <div style={{ position: "absolute", top: OPT_TOP + i * OPT_STEP, left: SIDE.left, right: SIDE.right,
-      opacity: Math.min(1, inS * 1.5) * (1 - strike * 0.52) * (1 - dimOthers * 0.45),
+      opacity: Math.min(1, inS * 1.5) * (1 - dimOthers * 0.45),
       transform: `translateX(${(1 - inS) * 140 + shake - strike * 10}px) scale(${(1 - strike * 0.03) * (1 + win * 0.05)})`, filter: blur > 0.2 ? `blur(${blur}px)` : undefined }}>
-      <div style={{ position: "relative", overflow: "hidden", display: "flex", alignItems: "center", gap: 28, direction: "ltr", borderRadius: 30, padding: "16px 28px",
+      <div style={{ position: "relative", overflow: "hidden", display: "flex", alignItems: "center", gap: 28, direction: "ltr", borderRadius: 30, padding: "16px 28px", opacity: 1 - strike * 0.52,
         background: isCorrect && win > 0.01 ? `linear-gradient(90deg, ${withAlpha(b.colors.primary, 0.14 * win)}, ${withAlpha(b.colors.primary, 0.05 * win)})` : b.colors.surface,
         border: `${isCorrect && win > 0.01 ? 4 : 1.5}px solid ${isCorrect && win > 0.01 ? b.colors.primary : withAlpha(b.colors.text, 0.09)}`,
         boxShadow: win > 0 ? `${depth(b, 1.2)}, 0 0 ${50 * win}px ${withAlpha(b.colors.secondary, 0.32)}` : depth(b, 0.6) }}>
@@ -215,13 +217,20 @@ const OptionRow: React.FC<{ p: StepDecodeProps; t: number; ev: StepEvents; i: nu
           {strike > 0 ? <span style={{ position: "absolute", left: -8, top: "54%", height: 7, width: `calc((100% + 16px) * ${strike})`, background: b.colors.secondary, borderRadius: 4 }} /> : null}
         </div>
       </div>
-      {p.options[i].whyAr ? (
-        <div style={{ direction: "rtl", display: "flex", justifyContent: "flex-start", marginTop: 6, paddingRight: 14, opacity: Math.min(1, why * 1.4), transform: `translateY(${(1 - why) * 14}px) scale(${0.9 + 0.1 * why})`, transformOrigin: "right center" }}>
-          <span style={{ fontFamily: arabic, fontWeight: 600, fontSize: 34, color: b.colors.text, whiteSpace: "nowrap", background: withAlpha(b.colors.secondary, 0.1), borderRadius: 14, padding: "2px 14px" }}>
-            <span style={{ color: b.colors.secondary, fontWeight: 800 }}>✕ </span>{p.options[i].whyAr}
-          </span>
-        </div>
-      ) : null}
+      {p.options[i].whyAr ? (() => {
+        const nextAt = ev.strike[k + 1] ?? ev.reveal;
+        const settle = ease(t, nextAt, nextAt + 8); // the newest reason stays loudest; earlier ones settle back
+        return (
+          <div style={{ direction: "rtl", display: "flex", justifyContent: "flex-start", marginTop: 8, paddingRight: 10, opacity: Math.min(1, why * 1.4) * (1 - 0.3 * settle),
+            transform: `translateY(${(1 - why) * 14}px) scale(${(0.9 + 0.1 * why) * (1 + 0.05 * (1 - settle) * Math.min(1, why))})`, transformOrigin: "right center" }}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 12, fontFamily: arabic, fontWeight: 700, fontSize: 40, color: b.colors.text, whiteSpace: "nowrap",
+              background: withAlpha(b.colors.secondary, 0.14), border: `2px solid ${withAlpha(b.colors.secondary, 0.45)}`, borderRadius: 16, padding: "4px 16px 4px 14px" }}>
+              <span style={{ width: 34, height: 34, borderRadius: 999, background: b.colors.secondary, color: b.colors.surface, display: "inline-flex", alignItems: "center", justifyContent: "center", fontFamily: latin, fontSize: 22, fontWeight: 800 }}>✕</span>
+              <span style={{ direction: "rtl", unicodeBidi: "isolate" }}>{p.options[i].whyAr}</span>
+            </span>
+          </div>
+        );
+      })() : null}
     </div>
   );
 };
@@ -245,7 +254,7 @@ const RevealBurst: React.FC<{ t: number; at: number; y: number }> = ({ t, at, y 
   );
 };
 
-const Countdown: React.FC<{ t: number; think: Phase }> = ({ t, think }) => {
+const Countdown: React.FC<{ t: number; think: Phase; rows: number }> = ({ t, think, rows }) => {
   const b = useBrand();
   const local = t - think.from;
   if (local < -2 || local >= think.frames + 2) return null;
@@ -258,8 +267,8 @@ const Countdown: React.FC<{ t: number; think: Phase }> = ({ t, think }) => {
   const last = left === 1;
   const R = 82, C = 2 * Math.PI * R, seg = C / secs;
   return (
-    <div style={{ position: "absolute", top: OPT_TOP + 4 * OPT_STEP - 30, left: 0, right: 0, opacity: Math.min(1, appear) * gone, transform: `scale(${0.7 + 0.3 * appear})`, display: "flex", flexDirection: "row-reverse", justifyContent: "center", alignItems: "center", gap: 24 }}>
-      <svg width={176} height={176} viewBox="0 0 200 200" style={{ filter: `drop-shadow(0 12px 26px ${withAlpha(b.colors.secondary, last ? 0.5 : 0.3)})` }}>
+    <div style={{ position: "absolute", top: Math.min(ROWS_END(rows) + 4, SAFE.bottom - 146), left: 0, right: 0, opacity: Math.min(1, appear) * gone, transform: `scale(${0.7 + 0.3 * appear})`, display: "flex", flexDirection: "row-reverse", justifyContent: "center", alignItems: "center", gap: 22 }}>
+      <svg width={142} height={142} viewBox="0 0 200 200" style={{ filter: `drop-shadow(0 12px 26px ${withAlpha(b.colors.secondary, last ? 0.5 : 0.3)})` }}>
         <circle cx={100} cy={100} r={R + 10} fill={b.colors.surface} />
         {Array.from({ length: secs }, (_, s) => {
           const remain = Math.max(0, Math.min(1, s + 1 - local / 30)); // segment s empties during second s
@@ -273,7 +282,7 @@ const Countdown: React.FC<{ t: number; think: Phase }> = ({ t, think }) => {
         <text x={100} y={103} textAnchor="middle" dominantBaseline="central" fontFamily={latin} fontWeight={700} fontSize={88} fill={last ? b.colors.secondary : b.colors.text}
           style={{ transformOrigin: "100px 100px", transform: `scale(${1.35 - 0.35 * flip})`, filter: flip < 0.9 ? `blur(${(1 - flip) * 5}px)` : undefined }}>{left}</text>
       </svg>
-      <div style={{ fontFamily: arabic, fontWeight: 800, fontSize: 56, color: b.colors.secondary, transform: `scale(${1 + (last ? 0.06 * Math.sin(inSec / 2.5) : 0)})` }}>فكّر…</div>
+      <div style={{ fontFamily: arabic, fontWeight: 800, fontSize: 50, color: b.colors.secondary, transform: `scale(${1 + (last ? 0.06 * Math.sin(inSec / 2.5) : 0)})` }}>فكّر…</div>
     </div>
   );
 };
@@ -297,7 +306,13 @@ const Analysis: React.FC<{ p: StepDecodeProps; t: number; ev: StepEvents; rule: 
   const arrow = chips.indexOf("→");
   const row = (n: 0 | 1 | 2, content: React.ReactNode) => {
     const k = step(n);
-    return <div style={{ opacity: Math.min(1, k * 1.4), transform: `translateY(${(1 - k) * 26}px)`, marginBottom: n < 2 ? 20 : 0 }}>{content}</div>;
+    const open = ease(t, ev.ruleSteps[n] - 2, ev.ruleSteps[n] + 10); // height opens smoothly, then content springs in
+    if (open <= 0) return null;
+    return (
+      <div style={{ maxHeight: open * 420, overflow: "hidden", marginTop: n > 0 ? 18 * open : 0 }}>
+        <div style={{ opacity: Math.min(1, k * 1.4), transform: `translateY(${(1 - k) * 26}px)` }}>{content}</div>
+      </div>
+    );
   };
   return (
     <div style={{ position: "absolute", top: OPT_TOP - 20, left: SIDE.left, right: SIDE.right, opacity: Math.min(1, s * 1.4), transform: `translateY(${(1 - s) * 120}px)`, filter: blur > 0.2 ? `blur(${blur}px)` : undefined,
@@ -374,7 +389,7 @@ const Inner: React.FC<StepDecodeProps> = (p) => {
   const ph = phasesOf(p);
   const total = stepTotal(ph);
   const P = (n: PhaseName) => phaseAt(ph, n);
-  const ev = stepEvents(ph, p.options.length, p.perOption ?? ELIMINATE_PER_OPTION);
+  const ev = stepEvents(ph, p.options.length, p.perOption ?? ELIMINATE_PER_OPTION, ruleLoadOf(p.rule));
   const wrong = p.options.map((_, i) => i).filter((i) => i !== p.correct);
   const think = P("think"), rule = P("rule"), outro = P("outro");
   const focus = t >= think.from && t < think.from + think.frames ? Math.min(ease(t, think.from, think.from + 10), 1 - ease(t, think.from + think.frames - 8, think.from + think.frames)) : 0;
@@ -392,7 +407,7 @@ const Inner: React.FC<StepDecodeProps> = (p) => {
       {between(P("options").from, rule.from + 2) ? (
         <div style={{ opacity: optsOut }}>{p.options.map((_, i) => <OptionRow key={i} p={p} t={t} ev={ev} i={i} k={wrong.indexOf(i)} think={think} />)}</div>
       ) : null}
-      <Countdown t={t} think={think} />
+      <Countdown t={t} think={think} rows={p.options.length} />
       <RevealBurst t={t} at={ev.reveal} y={OPT_TOP + p.correct * OPT_STEP + 56} />
       {between(rule.from - 4, outro.from + 2) ? <div style={{ opacity: cardOut }}><Analysis p={p} t={t} ev={ev} rule={rule} /></div> : null}
       {t >= outro.from - 2 ? <Outro p={p} t={t} ev={ev} /> : null}
@@ -417,7 +432,7 @@ const Inner: React.FC<StepDecodeProps> = (p) => {
             ...(p.voiceover?.src ? [{ from: 0, to: total, level: 0.35 }] : []),
           ] })((f * BASE_FPS) / fps)} />
       ) : null}
-      {p.sfx === false ? null : <ScaledSfx cues={stepCues(ev, outro.from, formulaChips(p.rule.pattern).map((c, i) => (c === "+" || c === "→" ? -1 : i)).filter((i) => i >= 0))} />}
+      {p.sfx === false ? null : <ScaledSfx cues={stepCues(ev, outro.from, formulaChips(p.rule.pattern).map((c, i) => (c === "+" || c === "→" ? -1 : i)).filter((i) => i >= 0), p.sfxVolume ?? 1)} />}
     </AbsoluteFill>
   );
 };
